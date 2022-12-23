@@ -131,3 +131,6 @@ dmypy.json
 # CIFP Data files
 data/IN_CIFP.txt
 data/FAACIFP18
+
+# Mac Files
+.DS_Store
