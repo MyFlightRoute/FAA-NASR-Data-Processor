@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# CIFP Data files
+data/IN_CIFP.txt
+data/FAACIFP18
