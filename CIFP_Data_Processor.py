@@ -1,6 +1,5 @@
 from python_console_menu import AbstractMenu, MenuItem
 import os
-import wget
 import time
 
 
