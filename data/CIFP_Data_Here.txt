@@ -1,1 +1,0 @@
-Download the CIFP Data from https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/cifp/download/ and extract it to this folder
