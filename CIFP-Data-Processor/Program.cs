@@ -43,7 +43,7 @@ namespace CIFP_Data_Processor
                 Thread.Sleep(500);
             }
 
-            Console.WriteLine("Raw airport data read in successfully");
+            Console.WriteLine("Raw airport data read in successfully. {0} records added.", AirportHoldingData.Count.ToString());
             
             Thread.Sleep(2000);
             
@@ -63,7 +63,7 @@ namespace CIFP_Data_Processor
 
             string[] data = File.ReadAllLines("data/FAACIFP18");
             
-            Console.WriteLine("Data read in.");
+            Console.WriteLine("Data read in. {0} records imported.", data.Length.ToString());
             
             Thread.Sleep(2000);
             
