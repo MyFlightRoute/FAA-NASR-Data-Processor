@@ -89,9 +89,6 @@ namespace CIFP_Data_Processor
                 case 2:
                     Environment.Exit(0);
                     break;
-                
-                default:
-                    break;
             }
         }
     }
