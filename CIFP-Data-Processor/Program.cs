@@ -43,7 +43,7 @@ namespace CIFP_Data_Processor
         
         static void mainMenu()
         {
-            string[] menuItems = new[] { "Read data", "Export airports", "Exit"};
+            string[] menuItems = { "Read data", "Export airports", "Exit"};
             
             Menu menu = new Menu(menuItems, "Main Menu");
 
