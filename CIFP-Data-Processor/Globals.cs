@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ShellProgressBar;
 
 namespace CIFP_Data_Processor
@@ -11,5 +12,7 @@ namespace CIFP_Data_Processor
             ProgressCharacter = '-',
             ProgressBarOnBottom = true
         };
+
+        public static List<Airport> Airports = new List<Airport>();
     }
 }
