@@ -1,7 +1,7 @@
 namespace CIFP_Data_Processor
 {
-    public class Globals
+    public static class Globals
     {
-        
+        public static string[] RAW_DATA;
     }
 }
