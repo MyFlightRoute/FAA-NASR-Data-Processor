@@ -1,4 +1,5 @@
 from python_console_menu import AbstractMenu, MenuItem
+from tqdm import tqdm
 import os
 import time
 
@@ -31,5 +32,22 @@ class MainMenu(AbstractMenu):
         self.add_menu_item(MenuItem(3, "Exit").set_as_exit_option())
 
 
-main_menu = MainMenu()
-main_menu.display()
+def extract_airport_list():
+    dataset = open('data/FAACIFP18', 'r')
+    raw_data = dataset.readlines()
+
+    # print(raw_data)
+
+    raw_airports = []
+
+    for i in tqdm(range(0, len(raw_data)), desc="Progress"):
+        if "SUSAP" in raw_data[i]:
+            raw_airports += raw_data
+
+    print(raw_airports)
+
+
+extract_airport_list()
+
+# main_menu = MainMenu()
+# main_menu.display()
