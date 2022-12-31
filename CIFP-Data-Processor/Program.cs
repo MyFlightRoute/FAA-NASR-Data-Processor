@@ -19,22 +19,22 @@ namespace CIFP_Data_Processor
             while (true)
             {
                 Console.Clear();
-                mainMenu();
+                MainMenu();
             }
         }
 
-        static List<Airport> GenerateAirportList(String[] RawData)
+        static List<Airport> GenerateAirportList(String[] rawData)
         {
-            List<string> AirportHoldingData = new List<string>();
+            List<string> airportHoldingData = new List<string>();
             List<Airport> airports = new List<Airport>();
             
-            using (ProgressBar progressBar = new ProgressBar(RawData.Length, "Reading raw airport data", Globals.ProgressBarOptions))
+            using (ProgressBar progressBar = new ProgressBar(rawData.Length, "Reading raw airport data", Globals.ProgressBarOptions))
             {
-                foreach (var Data in RawData)
+                foreach (var data in rawData)
                 {
-                    if (Data.Contains("SUSAP"))
+                    if (data.Contains("SUSAP"))
                     {
-                        AirportHoldingData.Add(Data);
+                        airportHoldingData.Add(data);
                     }
                     
                     progressBar.Tick();
@@ -43,7 +43,7 @@ namespace CIFP_Data_Processor
                 Thread.Sleep(500);
             }
 
-            Console.WriteLine("Raw airport data read in successfully. {0} records added.", AirportHoldingData.Count.ToString());
+            Console.WriteLine("Raw airport data read in successfully. {0} records added.", airportHoldingData.Count.ToString());
             
             Thread.Sleep(2000);
             
@@ -70,7 +70,7 @@ namespace CIFP_Data_Processor
             return data;
         }
         
-        static void mainMenu()
+        static void MainMenu()
         {
             string[] menuItems = { "Read data", "Export airports", "Exit"};
             
