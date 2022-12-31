@@ -6,4 +6,10 @@
         <RootNamespace>CIFP_Data_Processor</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Reference Include="ConsoleMenu">
+        <HintPath>..\dependancies\ConsoleMenu.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
