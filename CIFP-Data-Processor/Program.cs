@@ -46,10 +46,59 @@ namespace CIFP_Data_Processor
             Console.WriteLine("Raw airport data read in successfully. {0} records added.", airportHoldingData.Count.ToString());
             
             Thread.Sleep(2000);
-            
+
+            for (int i = 0; i < airportHoldingData.Count; i++)
+            {
+                Airport newAirport = new Airport();
+                char[] dataCurrentLineChar = airportHoldingData[i].ToCharArray();
+                bool duplicateAirport = false;
+                string airportName, faaCode, icaoCode, latitude, longitude, lastIcaoCode;
+
+                icaoCode = generateIcaoCode(dataCurrentLineChar);
+
+                if (i > 0)
+                {
+                    char[] dataLastLineChar = airportHoldingData[i - 1].ToCharArray();
+                    lastIcaoCode = generateIcaoCode(dataLastLineChar);
+
+                    duplicateAirport = (icaoCode == lastIcaoCode);
+                }
+                
+                newAirport.IcaoCode = icaoCode;
+
+                if (!duplicateAirport)
+                {
+                    airports.Add(newAirport);
+                }
+            }
+
             return airports;
         }
 
+        private static string generateIcaoCode(char[] rawData)
+        {
+            string icaoCode;
+            
+            if (rawData[9] == ' ')
+            {
+                // Three letter code
+                icaoCode = rawData[6].ToString() + rawData[7].ToString() + rawData[8].ToString();
+                Console.WriteLine(icaoCode);
+            }
+            else if (rawData[10] == 'K')
+            {
+                // Four letter code
+                icaoCode = rawData[6].ToString() + rawData[7].ToString() + rawData[8].ToString() + rawData[9].ToString();
+                Console.WriteLine(icaoCode);
+            }
+            else
+            {
+                icaoCode = null;
+            }
+
+            return icaoCode;
+        }
+        
         static string[] ReadCifpData()
         {
             if (!File.Exists("data/FAACIFP18"))
