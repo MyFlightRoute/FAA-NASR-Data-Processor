@@ -1,7 +1,3 @@
-using System;
-using System.Globalization;
-using System.Runtime.CompilerServices;
-
 namespace CIFP_Data_Processor
 {
     public class Airport
