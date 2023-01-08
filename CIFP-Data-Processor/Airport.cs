@@ -10,27 +10,15 @@ namespace CIFP_Data_Processor
         public string RawCifpString { get; set; }
         private char[] RawCifpCharArr { get; set; }
         
-        public Airport(string rawCifpString, string icaoCode = "")
+        public Airport(string rawCifpString)
         {
             RawCifpString = rawCifpString;
             RawCifpCharArr = RawCifpString.ToCharArray();
-            
-            if (icaoCode != "")
-            {
-                IcaoCode = icaoCode;
-            }
-            else
-            {
-                generateIcaoCode();
-            }
+            GenerateIcaoCode();
         }
         
-        /*
-         * Function for generating the ICAO code from the RAW CIFP String
-         * Currently, this is handled in Program.cs when the object is created
-         * Todo: Evaluate moving ICAO code generation into the Object.
-         */
-        private string generateIcaoCode()
+         // Function for generating the ICAO code from the RAW CIFP String
+         private void GenerateIcaoCode()
         {
             string icaoCode;
             
@@ -52,8 +40,6 @@ namespace CIFP_Data_Processor
             }
 
             IcaoCode = icaoCode;
-            
-            return icaoCode;
         }
     }
 }

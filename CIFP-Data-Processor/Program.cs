@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ConsoleMenu;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using ShellProgressBar;
 
@@ -53,22 +54,15 @@ namespace CIFP_Data_Processor
                 for (int i = 0; i < airportHoldingData.Count; i++)
                 {
                     Airport newAirport;
-                    char[] dataCurrentLineChar = airportHoldingData[i].ToCharArray();
                     bool duplicateAirport = false;
-                    string airportName, faaCode, icaoCode, latitude, longitude, lastIcaoCode;
 
-                    icaoCode = generateIcaoCode(dataCurrentLineChar);
+                    newAirport = new Airport(airportHoldingData[i]);
 
                     if (i > 0)
                     {
-                        char[] dataLastLineChar = airportHoldingData[i - 1].ToCharArray();
-                        lastIcaoCode = generateIcaoCode(dataLastLineChar);
-
-                        duplicateAirport = (icaoCode == lastIcaoCode);
+                        duplicateAirport = (newAirport.IcaoCode == airports.Last().IcaoCode);
                     }
-
-                    newAirport = new Airport(airportHoldingData[i], icaoCode);
-
+                    
                     if (!duplicateAirport)
                     {
                         airports.Add(newAirport);
@@ -83,31 +77,6 @@ namespace CIFP_Data_Processor
             Thread.Sleep(2000);
             
             return airports;
-        }
-
-        // Todo: Evaluate moving ICAO code generation into the Object.
-        private static string generateIcaoCode(char[] rawData)
-        {
-            string icaoCode;
-            
-            if (rawData[9] == ' ')
-            {
-                // Three letter code
-                icaoCode = rawData[6].ToString() + rawData[7].ToString() + rawData[8].ToString();
-                // Console.WriteLine(icaoCode);
-            }
-            else if (rawData[10] == 'K')
-            {
-                // Four letter code
-                icaoCode = rawData[6].ToString() + rawData[7].ToString() + rawData[8].ToString() + rawData[9].ToString();
-                // Console.WriteLine(icaoCode);
-            }
-            else
-            {
-                icaoCode = null;
-            }
-
-            return icaoCode;
         }
         
         static string[] ReadCifpData()
