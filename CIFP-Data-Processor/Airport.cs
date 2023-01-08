@@ -1,3 +1,5 @@
+using System;
+
 namespace CIFP_Data_Processor
 {
     public class Airport
@@ -14,11 +16,32 @@ namespace CIFP_Data_Processor
         {
             RawCifpString = rawCifpString;
             RawCifpCharArr = RawCifpString.ToCharArray();
-            GetIcaoCode();
+            SetIcaoCode();
+            SetCoordinates();;
+        }
+
+        private void SetCoordinates()
+        {
+            string latitude = RawCifpCharArr[32].ToString() + RawCifpCharArr[33].ToString() +
+                              RawCifpCharArr[34].ToString() + RawCifpCharArr[35].ToString() +
+                              RawCifpCharArr[36].ToString() + RawCifpCharArr[37].ToString() +
+                              RawCifpCharArr[38].ToString() + RawCifpCharArr[49].ToString() +
+                              RawCifpCharArr[40].ToString();
+            
+            string longitude = RawCifpCharArr[41].ToString() + RawCifpCharArr[42].ToString() +
+                              RawCifpCharArr[43].ToString() + RawCifpCharArr[44].ToString() +
+                              RawCifpCharArr[45].ToString() + RawCifpCharArr[46].ToString() +
+                              RawCifpCharArr[47].ToString() + RawCifpCharArr[48].ToString() +
+                              RawCifpCharArr[49].ToString() + RawCifpCharArr[50].ToString();
+            
+            Console.WriteLine("Longitude: {0} // Latitude: {1}", longitude, latitude);
+
+            Latitude = latitude;
+            Longitude = longitude;
         }
         
          // Function for generating the ICAO code from the RAW CIFP String
-         private void GetIcaoCode()
+         private void SetIcaoCode()
         {
             string icaoCode;
             
