@@ -52,7 +52,7 @@ namespace CIFP_Data_Processor
             {
                 for (int i = 0; i < airportHoldingData.Count; i++)
                 {
-                    Airport newAirport = new Airport();
+                    Airport newAirport;
                     char[] dataCurrentLineChar = airportHoldingData[i].ToCharArray();
                     bool duplicateAirport = false;
                     string airportName, faaCode, icaoCode, latitude, longitude, lastIcaoCode;
@@ -67,7 +67,7 @@ namespace CIFP_Data_Processor
                         duplicateAirport = (icaoCode == lastIcaoCode);
                     }
 
-                    newAirport.IcaoCode = icaoCode;
+                    newAirport = new Airport(airportHoldingData[i], icaoCode);
 
                     if (!duplicateAirport)
                     {
@@ -85,6 +85,7 @@ namespace CIFP_Data_Processor
             return airports;
         }
 
+        // Todo: Evaluate moving ICAO code generation into the Object.
         private static string generateIcaoCode(char[] rawData)
         {
             string icaoCode;
