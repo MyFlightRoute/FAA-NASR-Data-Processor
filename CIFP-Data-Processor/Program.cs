@@ -55,7 +55,7 @@ namespace CIFP_Data_Processor
             {
                 for (int i = 0; i < airportHoldingData.Count; i++)
                 {
-                    Airport newAirport = new Airport(airportHoldingData[i]);;
+                    Airport newAirport = new Airport(airportHoldingData[i]);
                     bool duplicateAirport = false;
                     
                     if (i > 0)
