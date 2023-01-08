@@ -14,11 +14,11 @@ namespace CIFP_Data_Processor
         {
             RawCifpString = rawCifpString;
             RawCifpCharArr = RawCifpString.ToCharArray();
-            GenerateIcaoCode();
+            GetIcaoCode();
         }
         
          // Function for generating the ICAO code from the RAW CIFP String
-         private void GenerateIcaoCode()
+         private void GetIcaoCode()
         {
             string icaoCode;
             
