@@ -34,8 +34,6 @@ namespace CIFP_Data_Processor
                               RawCifpCharArr[47].ToString() + RawCifpCharArr[48].ToString() +
                               RawCifpCharArr[49].ToString() + RawCifpCharArr[50].ToString();
             
-            Console.WriteLine("Longitude: {0} // Latitude: {1}", longitude, latitude);
-
             Latitude = latitude;
             Longitude = longitude;
         }
