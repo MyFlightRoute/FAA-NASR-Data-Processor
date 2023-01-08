@@ -17,6 +17,8 @@ namespace CIFP_Data_Processor
                 Directory.CreateDirectory("data");
             }
 
+            StartUp();
+            
             while (true)
             {
                 Console.Clear();
@@ -98,21 +100,28 @@ namespace CIFP_Data_Processor
             
             return data;
         }
+
+        static void StartUp()
+        {
+            Globals.RawData = ReadCifpData();
+
+            Globals.Airports = GenerateAirportList(Globals.RawData);
+        }
         
         static void MainMenu()
         {
-            string[] menuItems = { "Read data", "Export airports", "Exit"};
+            string[] menuItems = { "Reread data", "Export airports", "Exit"};
             
             Menu menu = new Menu(menuItems, "Main Menu");
 
             switch (menu.displayMenu())
             {
                 case 0:
-                    Globals.RawData = ReadCifpData();
+                    StartUp();
                     break;
                 
                 case 1:
-                    Globals.Airports = GenerateAirportList(Globals.RawData);
+                    // Todo: Export airport list
                     break;
                 
                 case 2:
