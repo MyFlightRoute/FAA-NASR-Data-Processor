@@ -2,7 +2,7 @@ namespace CIFP_Data_Processor
 {
     public class Airport
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
         public string IcaoCode { get; private set; }
         public string FaaCode { get; private set; }
         public string Latitude { get; private set; }
