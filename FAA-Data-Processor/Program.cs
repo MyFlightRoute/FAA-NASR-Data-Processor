@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using ShellProgressBar;
 
-namespace CIFP_Data_Processor
+namespace FAA_Data_Processor
 {
     class Program
     {

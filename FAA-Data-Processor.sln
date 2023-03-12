@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIFP-Data-Processor", "CIFP-Data-Processor\CIFP-Data-Processor.csproj", "{D4B14F96-3179-44C8-9508-D215CACC164C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FAA-Data-Processor", "FAA-Data-Processor\FAA-Data-Processor.csproj", "{D4B14F96-3179-44C8-9508-D215CACC164C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

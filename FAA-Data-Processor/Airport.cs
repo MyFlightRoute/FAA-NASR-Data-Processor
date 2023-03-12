@@ -1,6 +1,4 @@
-using System;
-
-namespace CIFP_Data_Processor
+namespace FAA_Data_Processor
 {
     public class Airport
     {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using ShellProgressBar;
 
-namespace CIFP_Data_Processor
+namespace FAA_Data_Processor
 {
     public static class Globals
     {
