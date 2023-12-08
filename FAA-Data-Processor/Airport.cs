@@ -14,9 +14,9 @@ namespace FAA_Data_Processor
         {
             RawCifpString = rawCifpString;
             RawCifpCharArr = RawCifpString.ToCharArray();
-            SetIcaoCode();
-            SetCoordinates();
+            IcaoCode = SetIcaoCode();
             FaaCode = SetFaaCode();
+            SetCoordinates();
         }
 
         private void SetCoordinates()
@@ -38,7 +38,7 @@ namespace FAA_Data_Processor
         }
         
          // Function for generating the ICAO code from the RAW CIFP String
-         private void SetIcaoCode()
+         private string SetIcaoCode()
         {
             string icaoCode;
             
@@ -59,7 +59,7 @@ namespace FAA_Data_Processor
                 icaoCode = null;
             }
 
-            IcaoCode = icaoCode;
+            return IcaoCode;
         }
 
         private string SetFaaCode()
