@@ -59,7 +59,7 @@ namespace FAA_Data_Processor
                 icaoCode = null;
             }
 
-            return IcaoCode;
+            return icaoCode;
         }
 
         private string SetFaaCode()
