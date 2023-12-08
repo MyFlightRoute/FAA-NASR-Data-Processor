@@ -16,7 +16,7 @@ namespace FAA_Data_Processor
             {
                 Directory.CreateDirectory("data");
             }
-
+            
             while (true)
             {
                 Console.Clear();
@@ -101,7 +101,10 @@ namespace FAA_Data_Processor
         {
             Globals.RawData = ReadCifpData();
 
-            Globals.Airports = GenerateAirportList(Globals.RawData);
+            if (File.Exists("data/FAACIFP18"))
+            {
+                Globals.Airports = GenerateAirportList(Globals.RawData);
+            }
         }
         
         static void MainMenu()
