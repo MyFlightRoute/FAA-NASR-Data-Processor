@@ -15,7 +15,8 @@ namespace FAA_Data_Processor
             RawCifpString = rawCifpString;
             RawCifpCharArr = RawCifpString.ToCharArray();
             SetIcaoCode();
-            SetCoordinates();;
+            SetCoordinates();
+            FaaCode = SetFaaCode();
         }
 
         private void SetCoordinates()
@@ -59,6 +60,20 @@ namespace FAA_Data_Processor
             }
 
             IcaoCode = icaoCode;
+        }
+
+        private string SetFaaCode()
+        {
+            string faaCode;
+
+            faaCode = RawCifpCharArr[13].ToString() + RawCifpCharArr[14].ToString() + RawCifpCharArr[15].ToString();
+
+            if (faaCode.Trim() == "")
+            {
+                faaCode = IcaoCode;
+            }
+
+            return faaCode;
         }
     }
 }
