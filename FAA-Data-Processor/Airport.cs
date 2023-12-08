@@ -16,6 +16,7 @@ namespace FAA_Data_Processor
             RawCifpCharArr = RawCifpString.ToCharArray();
             IcaoCode = SetIcaoCode();
             FaaCode = SetFaaCode();
+            Name = SetAirportName();
             SetCoordinates();
         }
 
@@ -74,6 +75,21 @@ namespace FAA_Data_Processor
             }
 
             return faaCode;
+        }
+
+        private string SetAirportName()
+        {
+            string airportName = "";
+            char[] airportNameChars = RawCifpCharArr[93..121];
+            
+            foreach (char c in airportNameChars) 
+            {
+                airportName += c.ToString();
+            }
+
+            airportName = airportName.Trim();
+
+            return airportName;
         }
     }
 }
