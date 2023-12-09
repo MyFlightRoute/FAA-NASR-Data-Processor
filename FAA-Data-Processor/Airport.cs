@@ -5,6 +5,7 @@ namespace FAA_Data_Processor
         public string Name { get; set; }
         public string IcaoCode { get; set; }
         public string FaaCode { get; set; }
+        public string IcaoId { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }
         public string RawString { get; }

@@ -60,7 +60,7 @@ namespace FAA_Data_Processor
 
                         if (i > 0)
                         {
-                            duplicateAirport = (newAirport.IcaoCode == airports.Last().IcaoCode);
+                        duplicateAirport = (newAirport.IcaoId == airports.Last().IcaoId);
                         }
 
                         if (!duplicateAirport)
