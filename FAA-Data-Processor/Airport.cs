@@ -2,11 +2,11 @@ namespace FAA_Data_Processor
 {
     public class Airport
     {
-        public string Name { get; private set; }
-        public string IcaoCode { get; private set; }
-        public string FaaCode { get; private set; }
-        public string Latitude { get; private set; }
-        public string Longitude { get; private set; }
+        public string Name { get; set; }
+        public string IcaoCode { get; set; }
+        public string FaaCode { get; set; }
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
         public string RawString { get; }
         private char[] RawCifpCharArr { get; set; }
         
