@@ -29,6 +29,7 @@ namespace FAA_Data_Processor
         public string ElevationMethodCode { get; set; }
         public string MagneticVariation { get; set; }
         public string MagneticHemisphere { get; set; }
+        public string MagneticVariationYear { get; set; }
         public string Tpa { get; set; }
         public string ChartName { get; set; }
         public string DistanceCityToAirport { get; set; }
