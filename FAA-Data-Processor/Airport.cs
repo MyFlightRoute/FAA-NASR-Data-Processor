@@ -12,12 +12,15 @@ namespace FAA_Data_Processor
         
         public Airport(string rawCifpString)
         {
-            RawCifpString = rawCifpString;
-            RawCifpCharArr = RawCifpString.ToCharArray();
-            IcaoCode = SetIcaoCode();
-            FaaCode = SetFaaCode();
-            Name = SetAirportName();
-            SetCoordinates();
+            if (Globals.Cifp)
+            {
+                RawCifpString = rawCifpString;
+                RawCifpCharArr = RawCifpString.ToCharArray();
+                IcaoCode = SetIcaoCode();
+                FaaCode = SetFaaCode();
+                Name = SetAirportName();
+                SetCoordinates();
+            }
         }
 
         private void SetCoordinates()

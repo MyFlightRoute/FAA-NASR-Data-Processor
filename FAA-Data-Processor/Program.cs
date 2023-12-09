@@ -28,45 +28,48 @@ namespace FAA_Data_Processor
         {
             List<string> airportHoldingData = new List<string>();
             List<Airport> airports = new List<Airport>();
-            
-            using (ProgressBar progressBar = new ProgressBar(rawData.Length, "Reading raw airport data", Globals.ProgressBarOptions))
+
+            if (Globals.Cifp)
             {
-                foreach (var data in rawData)
+                using (ProgressBar progressBar = new ProgressBar(rawData.Length, "Reading raw airport data", Globals.ProgressBarOptions))
                 {
-                    if (data.Contains("SUSAP"))
+                    foreach (var data in rawData)
                     {
-                        airportHoldingData.Add(data);
+                        if (data.Contains("SUSAP"))
+                        {
+                            airportHoldingData.Add(data);
+                        }
+
+                        progressBar.Tick();
                     }
-                    
-                    progressBar.Tick();
+
+                    Thread.Sleep(500);
                 }
-                
-                Thread.Sleep(500);
-            }
 
-            Console.WriteLine("Raw airport data read in successfully. {0} records added.", airportHoldingData.Count.ToString());
-            
-            Thread.Sleep(1000);
+                Console.WriteLine("Raw airport data read in successfully. {0} records added.", airportHoldingData.Count.ToString());
 
-            using (ProgressBar progressBar = new ProgressBar(airportHoldingData.Count, "Processing airport data",
-                       Globals.ProgressBarOptions))
-            {
-                for (int i = 0; i < airportHoldingData.Count; i++)
+                Thread.Sleep(1000);
+
+                using (ProgressBar progressBar = new ProgressBar(airportHoldingData.Count, "Processing airport data",
+                           Globals.ProgressBarOptions))
                 {
-                    Airport newAirport = new Airport(airportHoldingData[i]);
-                    bool duplicateAirport = false;
-                    
-                    if (i > 0)
+                    for (int i = 0; i < airportHoldingData.Count; i++)
                     {
-                        duplicateAirport = (newAirport.IcaoCode == airports.Last().IcaoCode);
+                        Airport newAirport = new Airport(airportHoldingData[i]);
+                        bool duplicateAirport = false;
+
+                        if (i > 0)
+                        {
+                            duplicateAirport = (newAirport.IcaoCode == airports.Last().IcaoCode);
+                        }
+
+                        if (!duplicateAirport)
+                        {
+                            airports.Add(newAirport);
+                        }
+
+                        progressBar.Tick();
                     }
-                    
-                    if (!duplicateAirport)
-                    {
-                        airports.Add(newAirport);
-                    }
-                    
-                    progressBar.Tick();
                 }
             }
 
@@ -99,9 +102,12 @@ namespace FAA_Data_Processor
 
         static void StartUp()
         {
-            Globals.RawData = ReadCifpData();
+            if (Globals.Cifp)
+            {
+                Globals.RawData = ReadCifpData();
+            }
 
-            if (File.Exists("data/FAACIFP18"))
+            if (File.Exists("data/FAACIFP18") && Globals.Cifp)
             {
                 Globals.Airports = GenerateAirportList(Globals.RawData);
             }
