@@ -104,12 +104,15 @@ namespace FAA_Data_Processor
         {
             if (Globals.Cifp)
             {
-                Globals.RawData = ReadCifpData();
+                Globals.RawCifpData = ReadCifpData();
+            } else
+            {
+                Globals.RawCifpData = null; // Todo: Read NASR Data
             }
 
             if (File.Exists("data/FAACIFP18") && Globals.Cifp)
             {
-                Globals.Airports = GenerateAirportList(Globals.RawData);
+                Globals.Airports = GenerateAirportList(Globals.RawCifpData);
             }
         }
         
