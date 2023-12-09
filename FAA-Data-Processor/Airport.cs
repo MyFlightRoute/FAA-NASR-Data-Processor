@@ -7,15 +7,15 @@ namespace FAA_Data_Processor
         public string FaaCode { get; private set; }
         public string Latitude { get; private set; }
         public string Longitude { get; private set; }
-        public string RawCifpString { get; }
+        public string RawString { get; }
         private char[] RawCifpCharArr { get; set; }
         
-        public Airport(string rawCifpString)
+        public Airport(string rawString)
         {
             if (Globals.Cifp)
             {
-                RawCifpString = rawCifpString;
-                RawCifpCharArr = RawCifpString.ToCharArray();
+                RawString = rawString;
+                RawCifpCharArr = RawString.ToCharArray();
                 IcaoCode = SetIcaoCode();
                 FaaCode = SetFaaCode();
                 Name = SetAirportName();
