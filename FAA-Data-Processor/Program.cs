@@ -51,13 +51,13 @@ namespace FAA_Data_Processor
             {
                 if (!newData)
                 {
-                rawData = File.ReadAllLines("data/APT_BASE.csv");
+                    rawData = File.ReadAllLines("data/APT_BASE.csv");
                 }
                 else
                 {
                     rawData = File.ReadAllLines("data/APT_BASE_NEW.csv");
                 }
-                
+
                 foreach (var data in rawData) 
                 {
                     airportHoldingData.Add(data);
@@ -230,6 +230,67 @@ namespace FAA_Data_Processor
             return airports;
         }
         
+        static List<ModifiedAirport> GenerateAiportChangesList()
+        {
+            List<Airport> currentAirports = Globals.Airports;
+            List<Airport> nextAirports = GenerateAirportList(Globals.RawCifpData, true);
+            List<ModifiedAirport> modifiedAirports = new List<ModifiedAirport>();
+
+            bool airportExistsInNewData, airportExistsInCurrentData;
+
+            foreach (Airport airport in currentAirports)
+            {
+                airportExistsInNewData = nextAirports.Exists(x => x.AirportId == airport.AirportId);
+
+                if (!airportExistsInNewData) 
+                { 
+                    ModifiedAirport modifiedAirport = new ModifiedAirport();
+                    modifiedAirport.CurrentAirport = airport;
+                    modifiedAirport.Closed = true;
+                    modifiedAirport.IsModified = true;
+
+                    modifiedAirports.Add(modifiedAirport);
+                }
+            }
+
+            foreach (Airport airport in nextAirports)
+            {
+                airportExistsInCurrentData = currentAirports.Exists(x => x.AirportId == airport.AirportId);
+
+                if (!airportExistsInCurrentData)
+                {
+                    ModifiedAirport modifiedAirport = new ModifiedAirport();
+                    modifiedAirport.NewAirport = airport;
+                    modifiedAirport.Opened = true;
+                    modifiedAirport.IsModified = true;
+
+                    modifiedAirports.Add(modifiedAirport);
+                }
+            }
+
+            foreach (Airport currentAirport in currentAirports)
+            {
+                ModifiedAirport nextChangedAirport = new ModifiedAirport();
+
+                foreach (var nextAirport in nextAirports)
+                {
+                    if (nextAirport.Equals(currentAirport))
+                    {
+                        nextChangedAirport.CurrentAirport = currentAirport;
+                        nextChangedAirport.NewAirport = currentAirport;
+                        nextChangedAirport.RunChanges();
+
+                        if (nextChangedAirport.IsModified)
+                        {
+                            modifiedAirports.Add(nextChangedAirport);
+                        }
+                    }
+                }
+            }
+
+            return modifiedAirports;
+        }
+
         static string[] ReadCifpData()
         {
             if (!File.Exists("data/FAACIFP18"))
@@ -268,7 +329,7 @@ namespace FAA_Data_Processor
         
         static void MainMenu()
         {
-            string[] menuItems = { "Reread data", "Export airports", "Exit"};
+            string[] menuItems = { "Reread data", "Export airports", "Create changes list", "Exit"};
             
             Menu menu = new Menu(menuItems, "Main Menu");
 
@@ -283,6 +344,9 @@ namespace FAA_Data_Processor
                     break;
                 
                 case 2:
+                    GenerateAiportChangesList();
+                    break;
+                case 3:
                     Environment.Exit(0);
                     break;
             }
