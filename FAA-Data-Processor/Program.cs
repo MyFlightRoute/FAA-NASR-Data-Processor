@@ -24,7 +24,7 @@ namespace FAA_Data_Processor
             }
         }
 
-        static List<Airport> GenerateAirportList(String[] rawData)
+        static List<Airport> GenerateAirportList(String[] rawData, bool newData = false)
         {
             List<Airport> airports = new List<Airport>();
             List<string> airportHoldingData = new List<string>();
@@ -49,7 +49,14 @@ namespace FAA_Data_Processor
             }
             else
             {
+                if (!newData)
+                {
                 rawData = File.ReadAllLines("data/APT_BASE.csv");
+                }
+                else
+                {
+                    rawData = File.ReadAllLines("data/APT_BASE_NEW.csv");
+                }
                 
                 foreach (var data in rawData) 
                 {
