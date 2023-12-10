@@ -1,6 +1,8 @@
+using System;
+
 namespace FAA_Data_Processor
 {
-    public class Airport
+    public class Airport : IEquatable<Airport>
     {
         public string StateCode { get; set; }
         public string AirportId { get; set; }
@@ -191,6 +193,40 @@ namespace FAA_Data_Processor
             airportName = airportName.Trim();
 
             return airportName;
+        }
+
+        public bool Equals(Airport otherAirport)
+        {
+            if (otherAirport == null)
+            {
+                return false;
+            }
+
+            if (this.AirportId == otherAirport.AirportId) 
+            { 
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override bool Equals(Object obj)
+        {
+            if (obj == null)
+                return false;
+
+            Airport TestAirport = obj as Airport;
+            if (TestAirport == null)
+                return false;
+            else
+                return Equals(TestAirport);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.GetHashCode();
         }
     }
 }
