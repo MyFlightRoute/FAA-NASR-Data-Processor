@@ -378,6 +378,11 @@ namespace FAA_Data_Processor
                 rawData = File.ReadAllLines("data/PFR_BASE_NEW.csv");
             }
 
+            Console.WriteLine("Raw PFR Data read in, there are {0} routes.", (rawData.Length - 1).ToString());
+
+            using (ProgressBar progressBar = new ProgressBar(rawData.Length, "Processing PFR data",
+                        Globals.ProgressBarOptions))
+            {
             for (int i = 1; i < rawData.Length; i++)
             {
                 TecRoute route = new TecRoute();
@@ -414,7 +419,12 @@ namespace FAA_Data_Processor
                         routes.Add(route);
                     }
                 }
+
+                    progressBar.Tick();
             }
+            }
+
+            Console.WriteLine("Routes processed, there are {0} routes.", routes.Count);
 
             return routes;
         }
