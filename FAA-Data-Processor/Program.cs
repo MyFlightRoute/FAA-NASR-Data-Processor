@@ -431,15 +431,105 @@ namespace FAA_Data_Processor
 
         static void WriteTecChanges()
         {
+            List<TecRoute> currentRoutes = Globals.TecRoutes;
+            List<TecRoute> newRoutes = GenerateTecRouteList(true);
+            List<ModifiedTecRoute> modifiedTecRoutes = new List<ModifiedTecRoute>();
+
+            bool tecRouteInNewData, tecRouteInCurrentData;
+
+            foreach (TecRoute route in currentRoutes)
+            {
+                tecRouteInNewData = newRoutes.Exists(x => x.RouteDirectionDescription == route.RouteDirectionDescription);
+
+                if (!tecRouteInNewData)
+                {
+                    ModifiedTecRoute modifiedRoute = new ModifiedTecRoute();
+                    modifiedRoute.CurrentRoute = route;
+                    modifiedRoute.RemovedRoute = true;
+                    modifiedRoute.IsChanged = true;
+
+                    modifiedTecRoutes.Add(modifiedRoute);
+                }
+            }
+
+            foreach (TecRoute route in newRoutes)
+            {
+                tecRouteInCurrentData = currentRoutes.Exists(x => x.RouteDirectionDescription == route.RouteDirectionDescription);
+
+                if (!tecRouteInCurrentData)
+                {
+                    ModifiedTecRoute modifiedRoute = new ModifiedTecRoute();
+                    modifiedRoute.CurrentRoute = route;
+                    modifiedRoute.CreatedRoute = true;
+                    modifiedRoute.IsChanged = true;
+
+                    modifiedTecRoutes.Add(modifiedRoute);
+                }
+            }
+
+            foreach (TecRoute currentRoute in currentRoutes)
+            {
+                ModifiedTecRoute modifiedRoute = new ModifiedTecRoute();
+
+                foreach (TecRoute newRoute in newRoutes) 
+                {
+                    if (currentRoute.RouteDirectionDescription == newRoute.RouteDirectionDescription)
+                    {
+                        modifiedRoute.CurrentRoute = currentRoute;
+                        modifiedRoute.NewRoute = newRoute;
+                        modifiedRoute.RunChanges();
+
+                        if (modifiedRoute.IsChanged)
+                        {
+                            modifiedTecRoutes.Add(modifiedRoute);
+                        }
+                    }
+                }
+            }
+
+
             string path = "data/tec_data.txt";
             using (FileStream stream = new FileStream(path, FileMode.Append))
             {
                 using (StreamWriter writer = new StreamWriter(stream))
                 {
-                    foreach (var route in Globals.TecRoutes)
+                    writer.WriteLine("**TEC Route changes effective  // CYCLE **");
+                    
+                    if (modifiedTecRoutes.Count != 0)
                     {
-                        writer.WriteLine(route.RouteDirectionDescription);
+                        foreach (var route in modifiedTecRoutes)
+                        {
+                            if (route.CreatedRoute)
+                            {
+                                writer.WriteLine("Route {0} // CREATED", route.NewRoute.RouteDirectionDescription);
+                            }
+                            else if (route.RemovedRoute)
+                            {
+                                writer.WriteLine("Route {0} // REMOVED", route.CurrentRoute.RouteDirectionDescription);
+                            }
+                            else if (route.RouteChanged)
+                            {
+                                writer.WriteLine("Route {0} // REROUTED", route.NewRoute.RouteDirectionDescription);
+                            }
+                            else if (route.AltitudeChanged)
+                            {
+                                writer.WriteLine("Route {0} // CRUISE UPDATED", route.NewRoute.RouteDirectionDescription);
+                            }
+                            else
+                            {
+                                if (route.NewRoute == null)
+                                    writer.WriteLine("Route {0} // UNSPECIFIED UPDATE", route.CurrentRoute.RouteDirectionDescription);
+                                else
+                                    writer.WriteLine("Route {0} // UNSPECIFIED UPDATE", route.NewRoute.RouteDirectionDescription);
+                            }
+                        }
                     }
+                    else
+                    {
+                        writer.WriteLine("NO UPDATES IN THIS CYCLE");
+                    }
+
+                    writer.WriteLine("Please see myflightroute.com or the FAA Database for further TEC route information.");
                 }
             }
         }
@@ -487,7 +577,7 @@ namespace FAA_Data_Processor
         
         static void MainMenu()
         {
-            string[] menuItems = { "Reread data", "Export airports", "Create changes list", "Exit"};
+            string[] menuItems = { "Reread data", "Export airports", "Create airport changes list", "Create TEC Route changes list", "Exit"};
             
             Menu menu = new Menu(menuItems, "Main Menu");
 
@@ -506,6 +596,9 @@ namespace FAA_Data_Processor
                     WriteAirportChanges(Globals.ModifiedAirports);
                     break;
                 case 3:
+                    WriteTecChanges();
+                    break;
+                case 4:
                     Environment.Exit(0);
                     break;
             }
