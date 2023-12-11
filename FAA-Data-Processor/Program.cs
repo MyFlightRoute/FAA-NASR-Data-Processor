@@ -429,6 +429,21 @@ namespace FAA_Data_Processor
             return routes;
         }
 
+        static void WriteTecChanges()
+        {
+            string path = "data/tec_data.txt";
+            using (FileStream stream = new FileStream(path, FileMode.Append))
+            {
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    foreach (var route in Globals.TecRoutes)
+                    {
+                        writer.WriteLine(route.RouteDirectionDescription);
+                    }
+                }
+            }
+        }
+
         static string[] ReadCifpData()
         {
             if (!File.Exists("data/FAACIFP18"))
