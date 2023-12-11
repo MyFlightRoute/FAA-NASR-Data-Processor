@@ -16,5 +16,7 @@ namespace FAA_Data_Processor
 
         public static List<Airport> Airports = new List<Airport>();
         public static List<ModifiedAirport> ModifiedAirports = new List<ModifiedAirport>();
+
+        public static List<TecRoute> TecRoutes = new List<TecRoute>();
     }
 }

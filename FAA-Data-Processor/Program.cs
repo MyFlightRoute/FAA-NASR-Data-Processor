@@ -359,6 +359,62 @@ namespace FAA_Data_Processor
             Thread.Sleep(1000);
         }
 
+        static List<TecRoute> GenerateTecRouteList(bool newData = false)
+        {
+            List<TecRoute> routes = new List<TecRoute>();
+            string[] rawData, rawDataSplit;
+            
+
+            if (!newData)
+            {
+                rawData = File.ReadAllLines("data/PFR_BASE.csv");
+            }
+            else
+            {
+                rawData = File.ReadAllLines("data/PFR_BASE_NEW.csv");
+            }
+
+            for (int i = 1; i < rawData.Length; i++)
+            {
+                TecRoute route = new TecRoute();
+                rawData[i] = rawData[i].Replace("\"", "");
+                rawDataSplit = rawData[i].Split(',');
+
+                route.OriginId.Add(rawDataSplit[1]);
+                route.OriginCity.Add(rawDataSplit[2]);
+                route.OriginStateCode = rawDataSplit[3];
+                route.OriginCountryCode = rawDataSplit[4];
+                route.DestinationId.Add(rawDataSplit[5]);
+                route.DestinationCity.Add(rawDataSplit[6]);
+                route.DestinationStateCode = rawDataSplit[7];
+                route.DestinationCountryCode = rawDataSplit[8];
+                route.PreferencialRouteTypeCode = rawDataSplit[9];
+                route.RouteNumber = rawDataSplit[10];
+                route.SpecialAreaDescription = rawDataSplit[11];
+                route.AltitudeDescription = rawDataSplit[12];
+                route.Aircraft = rawDataSplit[13];
+                route.Hours = rawDataSplit[14];
+                route.RouteDirectionDescription = rawDataSplit[15];
+                route.NarType = rawDataSplit[16];
+                route.Designator = rawDataSplit[17];
+                route.InlandFacFix = rawDataSplit[18];
+                route.CoastalFix = rawDataSplit[19];
+                route.Destination = rawDataSplit[20];
+                route.RouteString = rawDataSplit[21];
+
+                if (route.PreferencialRouteTypeCode == "TEC" && route.OriginStateCode == "CA" && route.DestinationStateCode == "CA")
+                {
+                    if (!routes.Exists(x => x.RouteDirectionDescription == route.RouteDirectionDescription))
+                    {
+                        route.CalculateOriginDestination();
+                        routes.Add(route);
+                    }
+                }
+            }
+
+            return routes;
+        }
+
         static string[] ReadCifpData()
         {
             if (!File.Exists("data/FAACIFP18"))
@@ -392,6 +448,11 @@ namespace FAA_Data_Processor
             if ((File.Exists("data/FAACIFP18") && Globals.Cifp) || File.Exists("data/APT_BASE.csv"))
             {
                 Globals.Airports = GenerateAirportList(Globals.RawCifpData);
+            }
+
+            if (!Globals.Cifp)
+            {
+                GenerateTecRouteList();
             }
         }
         
