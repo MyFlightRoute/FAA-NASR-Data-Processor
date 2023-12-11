@@ -383,45 +383,45 @@ namespace FAA_Data_Processor
             using (ProgressBar progressBar = new ProgressBar(rawData.Length, "Processing PFR data",
                         Globals.ProgressBarOptions))
             {
-            for (int i = 1; i < rawData.Length; i++)
-            {
-                TecRoute route = new TecRoute();
-                rawData[i] = rawData[i].Replace("\"", "");
-                rawDataSplit = rawData[i].Split(',');
-
-                route.OriginId.Add(rawDataSplit[1]);
-                route.OriginCity.Add(rawDataSplit[2]);
-                route.OriginStateCode = rawDataSplit[3];
-                route.OriginCountryCode = rawDataSplit[4];
-                route.DestinationId.Add(rawDataSplit[5]);
-                route.DestinationCity.Add(rawDataSplit[6]);
-                route.DestinationStateCode = rawDataSplit[7];
-                route.DestinationCountryCode = rawDataSplit[8];
-                route.PreferencialRouteTypeCode = rawDataSplit[9];
-                route.RouteNumber = rawDataSplit[10];
-                route.SpecialAreaDescription = rawDataSplit[11];
-                route.AltitudeDescription = rawDataSplit[12];
-                route.Aircraft = rawDataSplit[13];
-                route.Hours = rawDataSplit[14];
-                route.RouteDirectionDescription = rawDataSplit[15];
-                route.NarType = rawDataSplit[16];
-                route.Designator = rawDataSplit[17];
-                route.InlandFacFix = rawDataSplit[18];
-                route.CoastalFix = rawDataSplit[19];
-                route.Destination = rawDataSplit[20];
-                route.RouteString = rawDataSplit[21];
-
-                if (route.PreferencialRouteTypeCode == "TEC" && route.OriginStateCode == "CA" && route.DestinationStateCode == "CA")
+                for (int i = 1; i < rawData.Length; i++)
                 {
-                    if (!routes.Exists(x => x.RouteDirectionDescription == route.RouteDirectionDescription))
+                    TecRoute route = new TecRoute();
+                    rawData[i] = rawData[i].Replace("\"", "");
+                    rawDataSplit = rawData[i].Split(',');
+
+                    route.OriginId.Add(rawDataSplit[1]);
+                    route.OriginCity.Add(rawDataSplit[2]);
+                    route.OriginStateCode = rawDataSplit[3];
+                    route.OriginCountryCode = rawDataSplit[4];
+                    route.DestinationId.Add(rawDataSplit[5]);
+                    route.DestinationCity.Add(rawDataSplit[6]);
+                    route.DestinationStateCode = rawDataSplit[7];
+                    route.DestinationCountryCode = rawDataSplit[8];
+                    route.PreferencialRouteTypeCode = rawDataSplit[9];
+                    route.RouteNumber = rawDataSplit[10];
+                    route.SpecialAreaDescription = rawDataSplit[11];
+                    route.AltitudeDescription = rawDataSplit[12];
+                    route.Aircraft = rawDataSplit[13];
+                    route.Hours = rawDataSplit[14];
+                    route.RouteDirectionDescription = rawDataSplit[15];
+                    route.NarType = rawDataSplit[16];
+                    route.Designator = rawDataSplit[17];
+                    route.InlandFacFix = rawDataSplit[18];
+                    route.CoastalFix = rawDataSplit[19];
+                    route.Destination = rawDataSplit[20];
+                    route.RouteString = rawDataSplit[21];
+
+                    if (route.PreferencialRouteTypeCode == "TEC" && route.OriginStateCode == "CA" && route.DestinationStateCode == "CA")
                     {
-                        route.CalculateOriginDestination();
-                        routes.Add(route);
+                        if (!routes.Exists(x => x.RouteDirectionDescription == route.RouteDirectionDescription))
+                        {
+                            route.CalculateOriginDestination();
+                            routes.Add(route);
+                        }
                     }
-                }
 
                     progressBar.Tick();
-            }
+                }
             }
 
             Console.WriteLine("Routes processed, there are {0} routes.", routes.Count);
@@ -481,7 +481,7 @@ namespace FAA_Data_Processor
 
             if (!Globals.Cifp)
             {
-                GenerateTecRouteList();
+                Globals.TecRoutes = GenerateTecRouteList();
             }
         }
         
