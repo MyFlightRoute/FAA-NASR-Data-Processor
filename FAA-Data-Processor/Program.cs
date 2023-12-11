@@ -304,14 +304,8 @@ namespace FAA_Data_Processor
             string path = "data/changed_airports.txt";
             string[] States = { "CALIFORNIA", "OREGON", "Washington", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA" };
 
-/*            if (File.Exists(path)) 
+            using(FileStream fileStream = new FileStream(path, FileMode.Create))
             { 
-                File.Delete(path);
-                File.Create(path);
-            }*/
-
-            using(FileStream fileStream = new FileStream(path, FileMode.Append))
-            {
                 using(StreamWriter writer = new StreamWriter(fileStream))
                 {
                     writer.WriteLine("**Airport changes effective  // CYCLE**");
@@ -489,7 +483,7 @@ namespace FAA_Data_Processor
 
 
             string path = "data/tec_data.txt";
-            using (FileStream stream = new FileStream(path, FileMode.Append))
+            using (FileStream stream = new FileStream(path, FileMode.Create))
             {
                 using (StreamWriter writer = new StreamWriter(stream))
                 {
