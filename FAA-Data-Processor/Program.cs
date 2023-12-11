@@ -230,7 +230,7 @@ namespace FAA_Data_Processor
             Console.WriteLine("Airports list generated. There are {0} airports in the database.", airports.Count);
             
             Thread.Sleep(2000);
-            
+            Console.Clear();
             return airports;
         }
         
