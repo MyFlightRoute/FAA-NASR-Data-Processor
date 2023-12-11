@@ -288,12 +288,75 @@ namespace FAA_Data_Processor
                 }
             }
 
+            Console.WriteLine("Modified airports database created.");
+
             Globals.ModifiedAirports = modifiedAirports;
+
+            Thread.Sleep(1000);
         }
 
         static void WriteAirportChanges(List<ModifiedAirport> modifiedAirports)
         {
+            string path = "data/changed_airports.txt";
+            string[] States = { "CALIFORNIA", "OREGON", "Washington", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA" };
 
+/*            if (File.Exists(path)) 
+            { 
+                File.Delete(path);
+                File.Create(path);
+            }*/
+
+            using(FileStream fileStream = new FileStream(path, FileMode.Append))
+            {
+                using(StreamWriter writer = new StreamWriter(fileStream))
+                {
+                    writer.WriteLine("**Airport changes effective  // CYCLE**");
+
+                    foreach (ModifiedAirport airport in modifiedAirports)
+                    {
+                        if (airport.CurrentAirport == null)
+                        {
+                            if (States.Contains(airport.NewAirport.StateName))
+                            {
+                                if (airport.Opened)
+                                {
+                                    writer.WriteLine("{0} - {1} - OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
+                                }
+                                else if (airport.Closed)
+                                {
+                                    writer.WriteLine("{0} - {1} - CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
+                                }
+                                else if (airport.Renamed)
+                                {
+                                    writer.WriteLine("{0} - {1} - RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (States.Contains(airport.CurrentAirport.StateName))
+                            {
+                                if (airport.Opened)
+                                {
+                                    writer.WriteLine("{0} - {1} - OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
+                                }
+                                else if (airport.Closed)
+                                {
+                                    writer.WriteLine("{0} - {1} - CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
+                                }
+                                else if (airport.Renamed)
+                                {
+                                    writer.WriteLine("{0} - {1} - RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Console.WriteLine("File outputted at {0}", path);
+
+            Thread.Sleep(1000);
         }
 
         static string[] ReadCifpData()
@@ -350,6 +413,7 @@ namespace FAA_Data_Processor
                 
                 case 2:
                     GenerateAiportChangesList();
+                    WriteAirportChanges(Globals.ModifiedAirports);
                     break;
                 case 3:
                     Environment.Exit(0);
