@@ -324,15 +324,15 @@ namespace FAA_Data_Processor
                             {
                                 if (airport.Opened)
                                 {
-                                    writer.WriteLine("{0} - {1} - OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
                                 }
                                 else if (airport.Closed)
                                 {
-                                    writer.WriteLine("{0} - {1} - CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
                                 }
                                 else if (airport.Renamed)
                                 {
-                                    writer.WriteLine("{0} - {1} - RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
                                 }
                             }
                         }
@@ -342,15 +342,15 @@ namespace FAA_Data_Processor
                             {
                                 if (airport.Opened)
                                 {
-                                    writer.WriteLine("{0} - {1} - OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
                                 }
                                 else if (airport.Closed)
                                 {
-                                    writer.WriteLine("{0} - {1} - CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
                                 }
                                 else if (airport.Renamed)
                                 {
-                                    writer.WriteLine("{0} - {1} - RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
                                 }
                             }
                         }
