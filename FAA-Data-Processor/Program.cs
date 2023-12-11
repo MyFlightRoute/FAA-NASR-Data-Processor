@@ -230,7 +230,7 @@ namespace FAA_Data_Processor
             return airports;
         }
         
-        static List<ModifiedAirport> GenerateAiportChangesList()
+        static void GenerateAiportChangesList()
         {
             List<Airport> currentAirports = Globals.Airports;
             List<Airport> nextAirports = GenerateAirportList(Globals.RawCifpData, true);
@@ -288,7 +288,12 @@ namespace FAA_Data_Processor
                 }
             }
 
-            return modifiedAirports;
+            Globals.ModifiedAirports = modifiedAirports;
+        }
+
+        static void WriteAirportChanges(List<ModifiedAirport> modifiedAirports)
+        {
+
         }
 
         static string[] ReadCifpData()

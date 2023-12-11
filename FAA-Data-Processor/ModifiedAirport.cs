@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FAA_Data_Processor
 {
-    internal class ModifiedAirport
+    public class ModifiedAirport
     {
         public Airport CurrentAirport { get; set; }
         public Airport NewAirport { get; set; }
