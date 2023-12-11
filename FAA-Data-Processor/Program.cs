@@ -16,6 +16,10 @@ namespace FAA_Data_Processor
             {
                 Directory.CreateDirectory("data");
             }
+            else
+            {
+                StartUp();
+            }
             
             while (true)
             {
