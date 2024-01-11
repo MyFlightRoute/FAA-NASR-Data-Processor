@@ -307,7 +307,7 @@ namespace FAA_Data_Processor
             bool UsChange = false;
 
             using(FileStream fileStream = new FileStream(path, FileMode.Create))
-            { 
+            {
                 using(StreamWriter writer = new StreamWriter(fileStream))
                 {
                     writer.WriteLine("# **Airport changes effective  // CYCLE**");
@@ -321,17 +321,17 @@ namespace FAA_Data_Processor
                             {
                                 if (airport.Opened)
                                 {
-                                    writer.WriteLine("{0} - {1} // OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // OPENED - ({2}, {3})", airport.NewAirport.AirportId, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
                                     PeChange = true;
                                 }
                                 else if (airport.Closed)
                                 {
-                                    writer.WriteLine("{0} - {1} // CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // CLOSED - ({2}, {3})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.CurrentAirport.City, airport.CurrentAirport.StateCode);
                                     PeChange = true;
                                 }
                                 else if (airport.Renamed)
                                 {
-                                    writer.WriteLine("{0} - {1} // RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // RENAMED {2} - ({4}, {5})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
                                     PeChange = true;
                                 }
                             }
@@ -340,9 +340,25 @@ namespace FAA_Data_Processor
                         {
                             if (States.Contains(airport.CurrentAirport.StateName))
                             {
+                                if (airport.Opened)
+                                {
+                                    writer.WriteLine("{0} - {1} // OPENED - ({2}, {3})", airport.NewAirport.AirportId, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
                                     PeChange = true;
+                                }
+                                else if (airport.Closed)
+                                {
+                                    writer.WriteLine("{0} - {1} // CLOSED - ({2}, {3})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.CurrentAirport.City, airport.CurrentAirport.StateCode);
                                     PeChange = true;
+                                }
+                                else if (airport.Renamed)
+                                {
+                                    writer.WriteLine("{0} - {1} // RENAMED {2} - ({4}, {5})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
                                     PeChange = true;
+                                }
+                            }
+                        }
+                    }
+
                     if (!PeChange)
                     {
                         writer.WriteLine("NO PILOTEDGE AREA AIRPORT CHANGES");
