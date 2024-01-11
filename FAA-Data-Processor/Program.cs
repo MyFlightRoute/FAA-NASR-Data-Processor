@@ -303,6 +303,8 @@ namespace FAA_Data_Processor
         {
             string path = "data/changed_airports.txt";
             string[] States = { "CALIFORNIA", "OREGON", "Washington", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA" };
+            bool PeChange = false;
+            bool UsChange = false;
 
             using(FileStream fileStream = new FileStream(path, FileMode.Create))
             { 
@@ -319,14 +321,17 @@ namespace FAA_Data_Processor
                                 if (airport.Opened)
                                 {
                                     writer.WriteLine("{0} - {1} // OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
+                                    PeChange = true;
                                 }
                                 else if (airport.Closed)
                                 {
                                     writer.WriteLine("{0} - {1} // CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
+                                    PeChange = true;
                                 }
                                 else if (airport.Renamed)
                                 {
                                     writer.WriteLine("{0} - {1} // RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
+                                    PeChange = true;
                                 }
                             }
                         }
@@ -334,17 +339,30 @@ namespace FAA_Data_Processor
                         {
                             if (States.Contains(airport.CurrentAirport.StateName))
                             {
+                                    PeChange = true;
+                                    PeChange = true;
+                                    PeChange = true;
+                    if (!PeChange)
+                    {
+                        writer.WriteLine("NO PILOTEDGE AREA AIRPORT CHANGES");
+                    }
+                                    UsChange = true;
+                                    UsChange = true;
+                                    UsChange = true;
                                 if (airport.Opened)
                                 {
                                     writer.WriteLine("{0} - {1} // OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
+                                    UsChange = true;
                                 }
                                 else if (airport.Closed)
                                 {
                                     writer.WriteLine("{0} - {1} // CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
+                                    UsChange = true;
                                 }
                                 else if (airport.Renamed)
                                 {
                                     writer.WriteLine("{0} - {1} // RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
+                                    UsChange = true;
                                 }
                             }
                         }
