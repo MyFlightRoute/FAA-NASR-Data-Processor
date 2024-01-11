@@ -310,7 +310,8 @@ namespace FAA_Data_Processor
             { 
                 using(StreamWriter writer = new StreamWriter(fileStream))
                 {
-                    writer.WriteLine("**Airport changes effective  // CYCLE**");
+                    writer.WriteLine("# **Airport changes effective  // CYCLE**");
+                    writer.WriteLine("## ** PilotEdge Area Changes **");
 
                     foreach (ModifiedAirport airport in modifiedAirports)
                     {
@@ -346,26 +347,58 @@ namespace FAA_Data_Processor
                     {
                         writer.WriteLine("NO PILOTEDGE AREA AIRPORT CHANGES");
                     }
-                                    UsChange = true;
-                                    UsChange = true;
-                                    UsChange = true;
+
+                    writer.WriteLine("## ** Airport changes outside PilotEdge service area **");
+
+                    foreach (ModifiedAirport airport in modifiedAirports)
+                    {
+                        if (airport.CurrentAirport == null)
+                        {
+                            if (!States.Contains(airport.NewAirport.StateName))
+                            {
                                 if (airport.Opened)
                                 {
-                                    writer.WriteLine("{0} - {1} // OPENED", airport.NewAirport.AirportId, airport.NewAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // OPENED - ({2}, {3})", airport.NewAirport.AirportId, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
                                     UsChange = true;
                                 }
                                 else if (airport.Closed)
                                 {
-                                    writer.WriteLine("{0} - {1} // CLOSED", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // CLOSED - ({2}, {3})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.CurrentAirport.City, airport.CurrentAirport.StateCode);
                                     UsChange = true;
                                 }
                                 else if (airport.Renamed)
                                 {
-                                    writer.WriteLine("{0} - {1} // RENAMED {2}", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName);
+                                    writer.WriteLine("{0} - {1} // RENAMED {2} - ({4}, {5})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
                                     UsChange = true;
                                 }
                             }
                         }
+                        else
+                        {
+                            if (!States.Contains(airport.CurrentAirport.StateName))
+                            {
+                                if (airport.Opened)
+                                {
+                                    writer.WriteLine("{0} - {1} // OPENED - ({2}, {3})", airport.NewAirport.AirportId, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    UsChange = true;
+                                }
+                                else if (airport.Closed)
+                                {
+                                    writer.WriteLine("{0} - {1} // CLOSED - ({2}, {3})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.CurrentAirport.City, airport.CurrentAirport.StateCode);
+                                    UsChange = true;
+                                }
+                                else if (airport.Renamed)
+                                {
+                                    writer.WriteLine("{0} - {1} // RENAMED {2} - ({4}, {5})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    UsChange = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!UsChange)
+                    {
+                        writer.WriteLine("NO AIRPORT CHANGES OUTSIDE PILOTEDGE SERVICE AREA");
                     }
                 }
             }
