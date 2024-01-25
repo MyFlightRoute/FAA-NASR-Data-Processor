@@ -13,8 +13,10 @@ With some tweaking, it will be possible to modify the output to make it useful f
 
 ## Usage
 
-TBC
+- Download the latest release from the repository and extract it.
+- In the Data folder, add the current airport csv data file. For the preview file for the next subscription, add _NEW at the end, and then put it in the data folder also. Repeat for the PFR csv files.
+- Generate the differences.
 
 ## Contributing
 
-TBC
+I am currently working on porting the project to Rust. When this is completed, I will add more information here.
