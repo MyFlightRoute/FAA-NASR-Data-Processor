@@ -15,7 +15,6 @@ fn main() {
 fn main_menu() {
     let mut menu = MenuBuilder::new()
         .with_menu(1)
-        .with_menu_item("Reread Data", MenuAction::Nothing)
         .with_menu_item("Export airport list", MenuAction::Nothing)
         .with_menu_item("Generate airport changes list", MenuAction::Nothing)
         .with_menu_item("Generate TEC Route changes list", MenuAction::Nothing)
@@ -25,10 +24,9 @@ fn main_menu() {
     loop {
         match menu.prompt() {
             Ok(tuple) => match tuple {
-                (1, 1) => println!("Re read data"),
-                (1, 2) => println!("Export Airport list"),
-                (1, 3) => println!("Generate airport changes list"),
-                (1, 4) => println!("Generate TEC Route changes"),
+                (1, 1) => println!("Export Airport list"),
+                (1, 2) => println!("Generate airport changes list"),
+                (1, 3) => println!("Generate TEC Route changes"),
                 _ => (),
             },
 
