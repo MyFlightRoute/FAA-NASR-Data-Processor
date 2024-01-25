@@ -1,5 +1,6 @@
 use std::fs;
 use menu_genie::{MenuAction, MenuBuilder, MgErrorKind};
+pub mod airport;
 
 fn main() {
     const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
