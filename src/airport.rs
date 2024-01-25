@@ -1,3 +1,6 @@
+const AIRPORT_DATA_LOCATION: &str = "data/APT_BASE.csv";
+const PREVIEW_AIRPORT_DATA_LOCATION: &str = "data/APT_BASE_NEW.csv";
+
 pub struct Airport {
     state_code: String,
     airport_id: String,
