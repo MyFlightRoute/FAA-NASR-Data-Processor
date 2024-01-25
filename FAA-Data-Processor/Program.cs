@@ -630,7 +630,7 @@ namespace FAA_Data_Processor
                 Globals.Airports = GenerateAirportList(Globals.RawCifpData);
             }
 
-            if (!Globals.Cifp)
+            if (File.Exists("data/PFR_BASE.csv"))
             {
                 Globals.TecRoutes = GenerateTecRouteList();
             }
