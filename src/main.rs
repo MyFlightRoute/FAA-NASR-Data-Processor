@@ -1,8 +1,10 @@
-use std::fs;
+use std::{fs, time::{self, Duration}};
 use menu_genie::{MenuAction, MenuBuilder, MgErrorKind};
 
 pub mod airport;
 pub mod preferential_route;
+
+const ONE_SECOND:Duration = time::Duration::from_secs(1);
 
 static mut CURRENT_AIRPORTS: Vec<airport::Airport> = Vec::new();
 static mut FUTURE_AIRPORTS: Vec<airport::Airport> = Vec::new();
