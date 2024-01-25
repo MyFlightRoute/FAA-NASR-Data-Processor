@@ -6,7 +6,6 @@ namespace FAA_Data_Processor
     public static class Globals
     {
         public static string[] RawCifpData;
-        public static bool Cifp = false; // Set this to true if using CIFP data rather than NASR data
 
         public static readonly ProgressBarOptions ProgressBarOptions = new ProgressBarOptions()
         {
