@@ -1,0 +1,617 @@
+﻿using System;
+using System.Collections.Generic;
+using ConsoleMenu;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using ShellProgressBar;
+
+namespace FAA_Data_Processor
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            if (!Directory.Exists("data"))
+            {
+                Directory.CreateDirectory("data");
+            }
+            else
+            {
+                StartUp();
+            }
+            
+            while (true)
+            {
+                Console.Clear();
+                MainMenu();
+            }
+        }
+
+        static List<Airport> GenerateAirportList(String[] rawData, bool newData = false)
+        {
+            List<Airport> airports = new List<Airport>();
+            List<string> airportHoldingData = new List<string>();
+
+            if (!newData)
+            {
+                rawData = File.ReadAllLines("data/APT_BASE.csv");
+            }
+            else
+            {
+                rawData = File.ReadAllLines("data/APT_BASE_NEW.csv");
+            }
+
+            foreach (var data in rawData) 
+            {
+                airportHoldingData.Add(data);
+            }
+            
+            Console.WriteLine("Raw airport data read in successfully. {0} records added.", airportHoldingData.Count.ToString());
+
+            Thread.Sleep(1000);
+
+            using (ProgressBar progressBar = new ProgressBar(airportHoldingData.Count, "Processing airport data",
+                        Globals.ProgressBarOptions))
+            {
+                for (int i = 0; i < airportHoldingData.Count; i++)
+                {
+                    airportHoldingData[i] = airportHoldingData[i].Replace("\"", "");
+                    
+                    Airport newAirport = new Airport(airportHoldingData[i]);
+                    string[] splitData = airportHoldingData[i].Split(',');
+                    
+                    bool duplicateAirport = false;
+
+                    newAirport.StateCode = splitData[3].ToString();
+                    newAirport.AirportId = splitData[4].ToString();
+                    newAirport.City = splitData[5].ToString();
+                    newAirport.CountryCode = splitData[6].ToString();
+                    newAirport.RegionCode  = splitData[7].ToString();
+                    newAirport.AdoCode = splitData[8].ToString();
+                    newAirport.StateName = splitData[9].ToString();
+                    newAirport.CountyName = splitData[10].ToString();
+                    newAirport.CountyAssoiatedState = splitData[11].ToString();
+                        
+                    newAirport.AirportName = splitData[12].ToString();
+                    newAirport.OwnershipTypeCode = splitData[13].ToString();
+                    newAirport.FacilityUseCode = splitData[14].ToString();
+                        
+                    newAirport.LatitudeDegree = splitData[15].ToString();
+                    newAirport.LatitudeMinutes = splitData[16].ToString();
+                    newAirport.LatitudeSeconds = splitData[17].ToString();
+                    newAirport.LatitudeHemisphere = splitData[18].ToString();
+                    newAirport.LatitudeDecimal = splitData[19].ToString();
+                        
+                    newAirport.LongitudeDegree = splitData[20].ToString();
+                    newAirport.LongitudeMinutes = splitData[21].ToString();
+                    newAirport.LongitudeSeconds = splitData[22].ToString();
+                    newAirport.LongitudeHemisphere = splitData[23].ToString();
+                    newAirport.LongitudeDecimal = splitData[24].ToString();
+
+                    newAirport.SurveyMethodCode = splitData[25].ToString();
+                    newAirport.Elevation = splitData[26].ToString();
+                    newAirport.ElevationMethodCode = splitData[27].ToString();
+                        
+                    newAirport.MagneticVariation = splitData[28].ToString();
+                    newAirport.MagneticHemisphere = splitData[29].ToString();
+                    newAirport.MagneticVariationYear = splitData[30].ToString();
+
+                    newAirport.Tpa = splitData[31].ToString();
+
+                    newAirport.ChartName = splitData[32].ToString();
+
+                    newAirport.DistanceCityToAirport = splitData[33].ToString();
+                    newAirport.DirectionCode = splitData[34].ToString();
+                    newAirport.Acreage = splitData[35].ToString();
+
+                    newAirport.RespArtccId = splitData[36].ToString();
+                    newAirport.ComputerId = splitData[37].ToString();
+                    newAirport.ArtccName = splitData[38].ToString();
+                    newAirport.FssOnAirportFlag = splitData[39].ToString();
+                    newAirport.FssId = splitData[40].ToString();
+                    newAirport.FssName = splitData[41].ToString();
+
+                    newAirport.PhoneNumber = splitData[42].ToString();
+                    newAirport.TollFreeNumber = splitData[43].ToString();
+
+                    newAirport.AltFssId = splitData[44].ToString();
+                    newAirport.AltFssName = splitData[45].ToString();
+                    newAirport.AltTollFreeNumber = splitData[46].ToString();
+
+                    newAirport.NotamId = splitData[47].ToString();
+                    newAirport.NotamFlag = splitData[48].ToString();
+
+                    newAirport.ActivationDate = splitData[49].ToString();
+                    newAirport.AirportStatus = splitData[50].ToString();
+
+                    newAirport.Far139TypeCode = splitData[51].ToString();
+                    newAirport.Far139CarrierSerCode = splitData[52].ToString();
+
+                    newAirport.ArffCertTypeDate = splitData[53].ToString();
+                    newAirport.NaspCode = splitData[54].ToString();
+                    newAirport.AspAnalysisDtrmCode = splitData[55].ToString();
+                        
+                    newAirport.CustomFlag = splitData[56].ToString();
+                    newAirport.LandingRightsFlag = splitData[57].ToString();
+                    newAirport.JointUseFlag = splitData[58].ToString();
+                    newAirport.MilitaryLandingFlag = splitData[59].ToString();
+
+                    newAirport.InspectMethodCode = splitData[60].ToString();
+                    newAirport.InspectorCode = splitData[61].ToString();
+                    newAirport.LastInspection = splitData[62].ToString();
+                    newAirport.LastInformationResponce = splitData[63].ToString();
+
+                    newAirport.FuelTypes = splitData[64].ToString();
+                    newAirport.AirframeRepairServiceCode = splitData[65].ToString();
+                    newAirport.PowerplantRepairService = splitData[66].ToString();
+                    newAirport.BottledOxygenType = splitData[67].ToString();
+                    newAirport.BulkOxygenType = splitData[68].ToString();
+
+                    newAirport.LightingSchedule = splitData[69].ToString();
+                    newAirport.BeaconLightSchedule = splitData[70].ToString();
+                    newAirport.TowerTypeCode = splitData[71].ToString();
+                    newAirport.SegmentCircleMarkerFlag = splitData[72].ToString();
+                    newAirport.BeaconLensColor = splitData[73].ToString();
+                    newAirport.LandingFeeFlag = splitData[74].ToString();
+                    newAirport.MedicalUseFlag = splitData[75].ToString();
+
+                    newAirport.BasedSingleEngine = splitData[76].ToString();
+                    newAirport.BasedMultiEngine = splitData[77].ToString();
+                    newAirport.BasedJetEngine = splitData[78].ToString();
+                    newAirport.BasedHelicopter = splitData[79].ToString();
+                    newAirport.BasedGliders = splitData[80].ToString();
+                    newAirport.BasedMilitaryAircraft = splitData[81].ToString();
+                    newAirport.BasedUltralightAircaft = splitData[82].ToString();
+
+                    newAirport.CommercialOps = splitData[83].ToString();
+                    newAirport.CommuterOps = splitData[84].ToString();
+                    newAirport.AirTaxiOps = splitData[85].ToString();
+                    newAirport.LocalOps = splitData[86].ToString();
+                    newAirport.IntermittentOps = splitData[87].ToString();
+                    newAirport.MilitaryAircraftOps = splitData[88].ToString();
+
+                    newAirport.AnnualOpsDate = splitData[89].ToString();
+                    newAirport.AirportPositionSource = splitData[90].ToString();
+                    newAirport.PositionSourceDate = splitData[91].ToString();
+                    newAirport.AirportElevationSource = splitData[92].ToString();
+                    newAirport.ElevationSourceDate = splitData[93].ToString();
+
+                    newAirport.ContrFuelAvailable = splitData[94].ToString();
+                    newAirport.TransientStorageBuoyFlag = splitData[95].ToString();
+                    newAirport.TransientStorageHangarFlag = splitData[96].ToString();
+                    newAirport.TransientStorageTieFlag = splitData[97].ToString();
+                    newAirport.OtherServices = splitData[98].ToString();
+
+                    newAirport.WindIndicatorFlag = splitData[99].ToString();
+                    newAirport.IcaoId = splitData[100].ToString();
+                    newAirport.MinimumOperationalNetwork = splitData[101].ToString();
+                    newAirport.UserFeeFlag = splitData[102].ToString();
+                    newAirport.Cta = splitData[103].ToString();
+                    
+
+/*                    if (i > 1 && Globals.Cifp)
+                    {
+                        duplicateAirport = (newAirport.IcaoId == airports.Last().IcaoId);
+                    }*/
+
+                    if (!duplicateAirport && i != 0)
+                    {
+                        airports.Add(newAirport);
+                    }
+
+                    progressBar.Tick();
+                }
+            }
+
+            Console.WriteLine("Airports list generated. There are {0} airports in the database.", airports.Count);
+            
+            Thread.Sleep(2000);
+            Console.Clear();
+            return airports;
+        }
+        
+        static void GenerateAiportChangesList()
+        {
+            List<Airport> currentAirports = Globals.Airports;
+            List<Airport> nextAirports = GenerateAirportList(Globals.RawCifpData, true);
+            List<ModifiedAirport> modifiedAirports = new List<ModifiedAirport>();
+
+            bool airportExistsInNewData, airportExistsInCurrentData;
+
+            foreach (Airport airport in currentAirports)
+            {
+                airportExistsInNewData = nextAirports.Exists(x => x.AirportId == airport.AirportId);
+
+                if (!airportExistsInNewData) 
+                { 
+                    ModifiedAirport modifiedAirport = new ModifiedAirport();
+                    modifiedAirport.CurrentAirport = airport;
+                    modifiedAirport.Closed = true;
+                    modifiedAirport.IsModified = true;
+
+                    modifiedAirports.Add(modifiedAirport);
+                }
+            }
+
+            foreach (Airport airport in nextAirports)
+            {
+                airportExistsInCurrentData = currentAirports.Exists(x => x.AirportId == airport.AirportId);
+
+                if (!airportExistsInCurrentData)
+                {
+                    ModifiedAirport modifiedAirport = new ModifiedAirport();
+                    modifiedAirport.NewAirport = airport;
+                    modifiedAirport.Opened = true;
+                    modifiedAirport.IsModified = true;
+
+                    modifiedAirports.Add(modifiedAirport);
+                }
+            }
+
+            foreach (Airport currentAirport in currentAirports)
+            {
+                ModifiedAirport nextChangedAirport = new ModifiedAirport();
+
+                foreach (var nextAirport in nextAirports)
+                {
+                    if (nextAirport.Equals(currentAirport))
+                    {
+                        nextChangedAirport.CurrentAirport = currentAirport;
+                        nextChangedAirport.NewAirport = currentAirport;
+                        nextChangedAirport.RunChanges();
+
+                        if (nextChangedAirport.IsModified)
+                        {
+                            modifiedAirports.Add(nextChangedAirport);
+                        }
+                    }
+                }
+            }
+
+            Console.WriteLine("Modified airports database created.");
+
+            Globals.ModifiedAirports = modifiedAirports;
+
+            Thread.Sleep(1000);
+        }
+
+        static void WriteAirportChanges(List<ModifiedAirport> modifiedAirports)
+        {
+            string path = "data/changed_airports.txt";
+            string[] States = { "CALIFORNIA", "OREGON", "Washington", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA" };
+            bool PeChange = false;
+            bool UsChange = false;
+
+            using(FileStream fileStream = new FileStream(path, FileMode.Create))
+            {
+                using(StreamWriter writer = new StreamWriter(fileStream))
+                {
+                    writer.WriteLine("# **Airport changes effective  // CYCLE**");
+                    writer.WriteLine("## ** PilotEdge Area Changes **");
+
+                    foreach (ModifiedAirport airport in modifiedAirports)
+                    {
+                        if (airport.CurrentAirport == null)
+                        {
+                            if (States.Contains(airport.NewAirport.StateName))
+                            {
+                                if (airport.Opened)
+                                {
+                                    writer.WriteLine("{0} - {1} // OPENED - ({2}, {3})", airport.NewAirport.AirportId, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    PeChange = true;
+                                }
+                                else if (airport.Closed)
+                                {
+                                    writer.WriteLine("{0} - {1} // CLOSED - ({2}, {3})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.CurrentAirport.City, airport.CurrentAirport.StateCode);
+                                    PeChange = true;
+                                }
+                                else if (airport.Renamed)
+                                {
+                                    writer.WriteLine("{0} - {1} // RENAMED {2} - ({4}, {5})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    PeChange = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (States.Contains(airport.CurrentAirport.StateName))
+                            {
+                                if (airport.Opened)
+                                {
+                                    writer.WriteLine("{0} - {1} // OPENED - ({2}, {3})", airport.NewAirport.AirportId, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    PeChange = true;
+                                }
+                                else if (airport.Closed)
+                                {
+                                    writer.WriteLine("{0} - {1} // CLOSED - ({2}, {3})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.CurrentAirport.City, airport.CurrentAirport.StateCode);
+                                    PeChange = true;
+                                }
+                                else if (airport.Renamed)
+                                {
+                                    writer.WriteLine("{0} - {1} // RENAMED {2} - ({4}, {5})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    PeChange = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!PeChange)
+                    {
+                        writer.WriteLine("NO PILOTEDGE AREA AIRPORT CHANGES");
+                    }
+
+                    writer.WriteLine("## ** Airport changes outside PilotEdge service area **");
+
+                    foreach (ModifiedAirport airport in modifiedAirports)
+                    {
+                        if (airport.CurrentAirport == null)
+                        {
+                            if (!States.Contains(airport.NewAirport.StateName))
+                            {
+                                if (airport.Opened)
+                                {
+                                    writer.WriteLine("{0} - {1} // OPENED - ({2}, {3})", airport.NewAirport.AirportId, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    UsChange = true;
+                                }
+                                else if (airport.Closed)
+                                {
+                                    writer.WriteLine("{0} - {1} // CLOSED - ({2}, {3})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.CurrentAirport.City, airport.CurrentAirport.StateCode);
+                                    UsChange = true;
+                                }
+                                else if (airport.Renamed)
+                                {
+                                    writer.WriteLine("{0} - {1} // RENAMED {2} - ({4}, {5})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    UsChange = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (!States.Contains(airport.CurrentAirport.StateName))
+                            {
+                                if (airport.Opened)
+                                {
+                                    writer.WriteLine("{0} - {1} // OPENED - ({2}, {3})", airport.NewAirport.AirportId, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    UsChange = true;
+                                }
+                                else if (airport.Closed)
+                                {
+                                    writer.WriteLine("{0} - {1} // CLOSED - ({2}, {3})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.CurrentAirport.City, airport.CurrentAirport.StateCode);
+                                    UsChange = true;
+                                }
+                                else if (airport.Renamed)
+                                {
+                                    writer.WriteLine("{0} - {1} // RENAMED {2} - ({4}, {5})", airport.CurrentAirport.AirportId, airport.CurrentAirport.AirportName, airport.NewAirport.AirportName, airport.NewAirport.City, airport.NewAirport.StateCode);
+                                    UsChange = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!UsChange)
+                    {
+                        writer.WriteLine("NO AIRPORT CHANGES OUTSIDE PILOTEDGE SERVICE AREA");
+                    }
+                }
+            }
+
+            Console.WriteLine("File outputted at {0}", path);
+
+            Thread.Sleep(1000);
+        }
+
+        static List<TecRoute> GenerateTecRouteList(bool newData = false)
+        {
+            List<TecRoute> routes = new List<TecRoute>();
+            string[] rawData, rawDataSplit;
+            
+
+            if (!newData)
+            {
+                rawData = File.ReadAllLines("data/PFR_BASE.csv");
+            }
+            else
+            {
+                rawData = File.ReadAllLines("data/PFR_BASE_NEW.csv");
+            }
+
+            Console.WriteLine("Raw PFR Data read in, there are {0} routes.", (rawData.Length - 1).ToString());
+
+            using (ProgressBar progressBar = new ProgressBar(rawData.Length, "Processing PFR data",
+                        Globals.ProgressBarOptions))
+            {
+                for (int i = 1; i < rawData.Length; i++)
+                {
+                    TecRoute route = new TecRoute();
+                    rawData[i] = rawData[i].Replace("\"", "");
+                    rawDataSplit = rawData[i].Split(',');
+
+                    route.OriginId.Add(rawDataSplit[1]);
+                    route.OriginCity.Add(rawDataSplit[2]);
+                    route.OriginStateCode = rawDataSplit[3];
+                    route.OriginCountryCode = rawDataSplit[4];
+                    route.DestinationId.Add(rawDataSplit[5]);
+                    route.DestinationCity.Add(rawDataSplit[6]);
+                    route.DestinationStateCode = rawDataSplit[7];
+                    route.DestinationCountryCode = rawDataSplit[8];
+                    route.PreferencialRouteTypeCode = rawDataSplit[9];
+                    route.RouteNumber = rawDataSplit[10];
+                    route.SpecialAreaDescription = rawDataSplit[11];
+                    route.AltitudeDescription = rawDataSplit[12];
+                    route.Aircraft = rawDataSplit[13];
+                    route.Hours = rawDataSplit[14];
+                    route.RouteDirectionDescription = rawDataSplit[15];
+                    route.NarType = rawDataSplit[16];
+                    route.Designator = rawDataSplit[17];
+                    route.InlandFacFix = rawDataSplit[18];
+                    route.CoastalFix = rawDataSplit[19];
+                    route.Destination = rawDataSplit[20];
+                    route.RouteString = rawDataSplit[21];
+
+                    if (route.PreferencialRouteTypeCode == "TEC" && route.OriginStateCode == "CA" && route.DestinationStateCode == "CA")
+                    {
+                        if (!routes.Exists(x => x.RouteDirectionDescription == route.RouteDirectionDescription))
+                        {
+                            route.CalculateOriginDestination();
+                            routes.Add(route);
+                        }
+                    }
+
+                    progressBar.Tick();
+                }
+            }
+
+            Console.WriteLine("Routes processed, there are {0} routes.", routes.Count);
+
+            return routes;
+        }
+
+        static void WriteTecChanges()
+        {
+            List<TecRoute> currentRoutes = Globals.TecRoutes;
+            List<TecRoute> newRoutes = GenerateTecRouteList(true);
+            List<ModifiedTecRoute> modifiedTecRoutes = new List<ModifiedTecRoute>();
+
+            bool tecRouteInNewData, tecRouteInCurrentData;
+
+            foreach (TecRoute route in currentRoutes)
+            {
+                tecRouteInNewData = newRoutes.Exists(x => x.RouteDirectionDescription == route.RouteDirectionDescription);
+
+                if (!tecRouteInNewData)
+                {
+                    ModifiedTecRoute modifiedRoute = new ModifiedTecRoute();
+                    modifiedRoute.CurrentRoute = route;
+                    modifiedRoute.RemovedRoute = true;
+                    modifiedRoute.IsChanged = true;
+
+                    modifiedTecRoutes.Add(modifiedRoute);
+                }
+            }
+
+            foreach (TecRoute route in newRoutes)
+            {
+                tecRouteInCurrentData = currentRoutes.Exists(x => x.RouteDirectionDescription == route.RouteDirectionDescription);
+
+                if (!tecRouteInCurrentData)
+                {
+                    ModifiedTecRoute modifiedRoute = new ModifiedTecRoute();
+                    modifiedRoute.CurrentRoute = route;
+                    modifiedRoute.CreatedRoute = true;
+                    modifiedRoute.IsChanged = true;
+
+                    modifiedTecRoutes.Add(modifiedRoute);
+                }
+            }
+
+            foreach (TecRoute currentRoute in currentRoutes)
+            {
+                ModifiedTecRoute modifiedRoute = new ModifiedTecRoute();
+
+                foreach (TecRoute newRoute in newRoutes) 
+                {
+                    if (currentRoute.RouteDirectionDescription == newRoute.RouteDirectionDescription)
+                    {
+                        modifiedRoute.CurrentRoute = currentRoute;
+                        modifiedRoute.NewRoute = newRoute;
+                        modifiedRoute.RunChanges();
+
+                        if (modifiedRoute.IsChanged)
+                        {
+                            modifiedTecRoutes.Add(modifiedRoute);
+                        }
+                    }
+                }
+            }
+
+
+            string path = "data/tec_data.txt";
+            using (FileStream stream = new FileStream(path, FileMode.Create))
+            {
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    writer.WriteLine("**TEC Route changes effective  // CYCLE **");
+                    
+                    if (modifiedTecRoutes.Count != 0)
+                    {
+                        foreach (var route in modifiedTecRoutes)
+                        {
+                            if (route.CreatedRoute)
+                            {
+                                writer.WriteLine("Route {0} // CREATED", route.NewRoute.RouteDirectionDescription);
+                            }
+                            else if (route.RemovedRoute)
+                            {
+                                writer.WriteLine("Route {0} // REMOVED", route.CurrentRoute.RouteDirectionDescription);
+                            }
+                            else if (route.RouteChanged)
+                            {
+                                writer.WriteLine("Route {0} // REROUTED", route.NewRoute.RouteDirectionDescription);
+                            }
+                            else if (route.AltitudeChanged)
+                            {
+                                writer.WriteLine("Route {0} // CRUISE UPDATED", route.NewRoute.RouteDirectionDescription);
+                            }
+                            else
+                            {
+                                if (route.NewRoute == null)
+                                    writer.WriteLine("Route {0} // UNSPECIFIED UPDATE", route.CurrentRoute.RouteDirectionDescription);
+                                else
+                                    writer.WriteLine("Route {0} // UNSPECIFIED UPDATE", route.NewRoute.RouteDirectionDescription);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        writer.WriteLine("NO UPDATES IN THIS CYCLE");
+                    }
+
+                    writer.WriteLine("Please see myflightroute.com or the FAA Database for further TEC route information.");
+                }
+            }
+        }
+
+        static void StartUp()
+        {
+            if (File.Exists("data/APT_BASE.csv"))
+            {
+                Globals.Airports = GenerateAirportList(Globals.RawCifpData);
+            }
+
+            if (File.Exists("data/PFR_BASE.csv"))
+            {
+                Globals.TecRoutes = GenerateTecRouteList();
+            }
+        }
+        
+        static void MainMenu()
+        {
+            string[] menuItems = { "Reread data", "Export airports", "Create airport changes list", "Create TEC Route changes list", "Exit"};
+            
+            Menu menu = new Menu(menuItems, "Main Menu");
+
+            switch (menu.displayMenu())
+            {
+                case 0:
+                    StartUp();
+                    break;
+                
+                case 1:
+                    // Todo: Export airport list
+                    break;
+                
+                case 2:
+                    GenerateAiportChangesList();
+                    WriteAirportChanges(Globals.ModifiedAirports);
+                    break;
+                case 3:
+                    WriteTecChanges();
+                    break;
+                case 4:
+                    Environment.Exit(0);
+                    break;
+            }
+        }
+    }
+}
