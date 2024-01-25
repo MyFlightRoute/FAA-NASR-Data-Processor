@@ -4,6 +4,9 @@ use menu_genie::{MenuAction, MenuBuilder, MgErrorKind};
 pub mod airport;
 pub mod preferential_route;
 
+static mut CURRENT_AIRPORTS: Vec<airport::Airport> = Vec::new();
+static mut FUTURE_AIRPORTS: Vec<airport::Airport> = Vec::new();
+
 fn main() {
     const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
     fs::create_dir_all("./data").expect("Failed to create");
