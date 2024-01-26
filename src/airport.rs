@@ -103,3 +103,21 @@ pub struct Airport {
     user_fee_flag: String,
     cta: String,
 }
+
+fn read_airports(future_data: bool){
+
+    if !future_data && !Path::new(AIRPORT_DATA_LOCATION).exists() {
+        println!("Please download the APT_BASE.csv file and put it in the data folder, and restart the function.");
+
+        thread::sleep(ONE_SECOND);
+
+        return;
+    } else if future_data && !Path::new(PREVIEW_AIRPORT_DATA_LOCATION).exists() {
+        println!("Please download the upcoming changes and put it in the data folder as APT_BASE_NEW.csv, and restart the function.");
+
+        thread::sleep(ONE_SECOND);
+
+        return;
+    }
+
+}
