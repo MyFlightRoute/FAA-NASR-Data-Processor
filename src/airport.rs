@@ -1,3 +1,8 @@
+use std::{path::Path, thread};
+use read_lines_into::traits::ReadLinesIntoStringsOnRefSelf;
+
+use crate::ONE_SECOND;
+
 const AIRPORT_DATA_LOCATION: &str = "data/APT_BASE.csv";
 const PREVIEW_AIRPORT_DATA_LOCATION: &str = "data/APT_BASE_NEW.csv";
 
@@ -105,6 +110,7 @@ pub struct Airport {
 }
 
 fn read_airports(future_data: bool){
+    let mut path: &Path;
 
     if !future_data && !Path::new(AIRPORT_DATA_LOCATION).exists() {
         println!("Please download the APT_BASE.csv file and put it in the data folder, and restart the function.");
@@ -120,4 +126,18 @@ fn read_airports(future_data: bool){
         return;
     }
 
+    if !future_data {
+        path = Path::new(AIRPORT_DATA_LOCATION);
+    } else {
+        path = Path::new(PREVIEW_AIRPORT_DATA_LOCATION);
+    }
+
+    let mut raw_data: Vec<String> = path.read_lines_into_vec_string().unwrap();
+
+    for i in 1..raw_data.len() {
+        let data_line: String = raw_data.get(i).unwrap().to_string();
+
+        let split_data = data_line.split(',');
+
+    }
 }
