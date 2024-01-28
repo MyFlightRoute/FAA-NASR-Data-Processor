@@ -1,4 +1,4 @@
-use std::{path::Path, thread};
+use std::{path::Path, thread, io::{self, BufRead}};
 use read_lines_into::traits::ReadLinesIntoStringsOnRefSelf;
 use std::fs::File;
 
@@ -124,7 +124,7 @@ pub fn read_airports(future_data: bool) -> io::Result<()>{
     }
 
     if !future_data {
-        path = Path::new(AIRPORT_DATA_LOCATION);
+        path = AIRPORT_DATA_LOCATION;
     } else {
         path = PREVIEW_AIRPORT_DATA_LOCATION;
     }
