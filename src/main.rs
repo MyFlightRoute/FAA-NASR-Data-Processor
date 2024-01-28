@@ -17,6 +17,11 @@ fn main() {
     main_menu();
 }
 
+fn generate_airport_changes() {
+    airport::read_airports(false);
+    airport::read_airports(true);
+}
+
 fn main_menu() {
     let mut menu = MenuBuilder::new()
         .with_menu(1)
@@ -30,7 +35,7 @@ fn main_menu() {
         match menu.prompt() {
             Ok(tuple) => match tuple {
                 (1, 1) => println!("Export Airport list"),
-                (1, 2) => println!("Generate airport changes list"),
+                (1, 2) => generate_airport_changes(),
                 (1, 3) => println!("Generate TEC Route changes"),
                 _ => (),
             },
