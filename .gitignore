@@ -111,3 +111,9 @@ rust-project.json
 
 
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,rust,rust-analyzer
+
+# Data added by user
+/data
+
+# VS Code environment
+/.vscode/launch.json
