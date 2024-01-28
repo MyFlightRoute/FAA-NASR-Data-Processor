@@ -1,5 +1,6 @@
 use std::{path::Path, thread};
 use read_lines_into::traits::ReadLinesIntoStringsOnRefSelf;
+use std::fs::File;
 
 use crate::ONE_SECOND;
 
@@ -109,35 +110,54 @@ pub struct Airport {
     cta: String,
 }
 
-fn read_airports(future_data: bool){
-    let mut path: &Path;
+pub fn read_airports(future_data: bool) -> io::Result<()>{
+    let path: &str;
 
     if !future_data && !Path::new(AIRPORT_DATA_LOCATION).exists() {
         println!("Please download the APT_BASE.csv file and put it in the data folder, and restart the function.");
 
         thread::sleep(ONE_SECOND);
-
-        return;
     } else if future_data && !Path::new(PREVIEW_AIRPORT_DATA_LOCATION).exists() {
         println!("Please download the upcoming changes and put it in the data folder as APT_BASE_NEW.csv, and restart the function.");
 
         thread::sleep(ONE_SECOND);
-
-        return;
     }
 
     if !future_data {
         path = Path::new(AIRPORT_DATA_LOCATION);
     } else {
-        path = Path::new(PREVIEW_AIRPORT_DATA_LOCATION);
+        path = PREVIEW_AIRPORT_DATA_LOCATION;
     }
 
-    let mut raw_data: Vec<String> = path.read_lines_into_vec_string().unwrap();
+    // Attempt to open the file
+    if let Ok(file) = File::open(&path) {
+        // Create a buffered reader to efficiently read the file line by line
+        let reader = io::BufReader::new(file);
 
-    for i in 1..raw_data.len() {
-        let data_line: String = raw_data.get(i).unwrap().to_string();
+        // Iterate over each line in the file
+        for line in reader.lines() {
+            // Check if reading the line was successful
+            if let Ok(line) = line {
+                let clean_line = line.replace('"', "");
 
-        let split_data = data_line.split(',');
+                // Split the line by commas and collect the values into a vector
+                let values: Vec<&str> = clean_line.split(',').collect();
 
+                // Print the vector of values for the current line
+                println!("{:?}", values);
+
+                if values[0] != "EFF_DATE" {
+                    let new_airport = Airport {
+                        state_code: values[3],
+                        airport_id: values[4]
+                    };
+                }
+            }
+        }
+    } else {
+        // Print an error message if opening the file fails
+        println!("Error opening the file: {}", path);
     }
+
+    Ok(())
 }
