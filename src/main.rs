@@ -5,12 +5,12 @@ pub mod airport;
 pub mod preferential_route;
 
 const ONE_SECOND:Duration = time::Duration::from_secs(1);
+const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 
 static mut CURRENT_AIRPORTS: Vec<airport::Airport> = Vec::new();
 static mut FUTURE_AIRPORTS: Vec<airport::Airport> = Vec::new();
 
 fn main() {
-    const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
     fs::create_dir_all("./data").expect("Failed to create");
     
     println!("FAA NASR Data Processor v{}", VERSION.unwrap_or("Unknown"));
