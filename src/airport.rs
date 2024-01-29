@@ -150,7 +150,7 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
                 let split_data: Vec<&str> = clean_line.split(',').collect();
 
                 // Print the vector of values for the current line
-                println!("{:?}", split_data);
+                //println!("{:?}", split_data);
 
                 // If the line is a valid airport data block, create an airport
                 if split_data[0] != "EFF_DATE" {
