@@ -8,13 +8,13 @@ const PREVIEW_AIRPORT_DATA_LOCATION: &str = "data/APT_BASE_NEW.csv";
 
 #[derive(PartialEq, Clone)]
 pub struct Airport {
-    state_code: String,
+    pub(crate) state_code: String,
     pub(crate) airport_id: String,
-    city: String,
+    pub(crate) city: String,
     country_code: String,
     region_code: String,
     ado_code: String,
-    state_name: String,
+    pub(crate) state_name: String,
     county_name: String,
     county_assoiated_state: String,
     pub(crate) airport_name: String,
