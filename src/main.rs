@@ -1,4 +1,4 @@
-use std::{fs, time::Duration};
+use std::{fs::{self, File}, time::Duration, io::Write, thread};
 use menu_genie::{MenuAction, MenuBuilder, MgErrorKind};
 use crate::airport::Airport;
 use crate::modified_airport::ModifiedAirport;
