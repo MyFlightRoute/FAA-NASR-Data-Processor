@@ -1,5 +1,4 @@
 use std::{path::Path, thread, io::{self, BufRead}};
-use read_lines_into::traits::ReadLinesIntoStringsOnRefSelf;
 use std::fs::File;
 
 use crate::ONE_SECOND;

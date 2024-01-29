@@ -7,4 +7,3 @@ edition = "2021"
 
 [dependencies]
 menu_genie = "0.1.1"
-read_lines_into = "2.0.0"
