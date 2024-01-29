@@ -1,11 +1,11 @@
-use std::{fs, time::{self, Duration}};
+use std::{fs, time::Duration};
 use menu_genie::{MenuAction, MenuBuilder, MgErrorKind};
 use crate::airport::Airport;
 
 pub mod airport;
 pub mod preferential_route;
 
-const ONE_SECOND:Duration = time::Duration::from_secs(1);
+const ONE_SECOND:Duration = Duration::from_secs(1);
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 
 fn main() {
