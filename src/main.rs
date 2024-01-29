@@ -1,14 +1,12 @@
 use std::{fs, time::{self, Duration}};
 use menu_genie::{MenuAction, MenuBuilder, MgErrorKind};
+use crate::airport::Airport;
 
 pub mod airport;
 pub mod preferential_route;
 
 const ONE_SECOND:Duration = time::Duration::from_secs(1);
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
-
-static mut CURRENT_AIRPORTS: Vec<airport::Airport> = Vec::new();
-static mut FUTURE_AIRPORTS: Vec<airport::Airport> = Vec::new();
 
 fn main() {
     fs::create_dir_all("./data").expect("Failed to create");
@@ -18,8 +16,8 @@ fn main() {
 }
 
 fn generate_airport_changes() {
-    airport::read_airports(false);
-    airport::read_airports(true);
+    let current_airports: Vec<Airport> = airport::read_airports(false);
+    let future_airports: Vec<Airport> = airport::read_airports(true);
 }
 
 fn main_menu() {
