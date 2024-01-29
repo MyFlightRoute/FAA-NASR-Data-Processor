@@ -259,11 +259,12 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
 
                     airport_list.push(new_airport);
 
-                    println!("New airport generated");
+                    // println!("New airport generated");
                 }
             }
         }
 
+        println!("Airports read.");
         return airport_list;
     } else {
         // Print an error message if opening the file fails
