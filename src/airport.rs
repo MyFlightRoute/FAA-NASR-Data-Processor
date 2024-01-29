@@ -6,7 +6,8 @@ use crate::ONE_SECOND;
 const AIRPORT_DATA_LOCATION: &str = "data/APT_BASE.csv";
 const PREVIEW_AIRPORT_DATA_LOCATION: &str = "data/APT_BASE_NEW.csv";
 
-pub struct Airport<> {
+#[derive(PartialEq, Clone)]
+pub struct Airport {
     state_code: String,
     pub(crate) airport_id: String,
     city: String,
