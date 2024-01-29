@@ -8,7 +8,7 @@ const PREVIEW_AIRPORT_DATA_LOCATION: &str = "data/APT_BASE_NEW.csv";
 
 pub struct Airport<> {
     state_code: String,
-    airport_id: String,
+    pub(crate) airport_id: String,
     city: String,
     country_code: String,
     region_code: String,
@@ -16,7 +16,7 @@ pub struct Airport<> {
     state_name: String,
     county_name: String,
     county_assoiated_state: String,
-    airport_name: String,
+    pub(crate) airport_name: String,
     ownership_type_code: String,
     facility_use_code: String,
     latitude_degree: String,
