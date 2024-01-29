@@ -20,7 +20,9 @@ fn main() {
 fn generate_airport_changes() {
     let current_airports: Vec<Airport> = airport::read_airports(false);
     let mut future_airports: Vec<Airport> = airport::read_airports(true);
-    let mut modified_airports: Vec<ModifiedAirport> = Vec::new();
+    let mut opened_airports: Vec<ModifiedAirport> = Vec::new();
+    let mut closed_airports: Vec<ModifiedAirport> = Vec::new();
+    let mut renamed_airports: Vec<ModifiedAirport> = Vec::new();
 
     let mut airport_exists_in_new_data: bool = false;
     let mut airport_exists_in_current_data: bool = false;
@@ -31,14 +33,14 @@ fn generate_airport_changes() {
         if !airport_exists_in_new_data {
             let modified_airport: ModifiedAirport = ModifiedAirport {
                 current_airport: Option::from(airport).cloned(),
-                new_airport: Option::None,
+                new_airport: None,
                 is_modified: Option::from(true),
                 renamed: Option::from(false),
                 closed: Option::from(true),
                 opened: Option::from(false),
             };
 
-            modified_airports.push(modified_airport);
+            closed_airports.push(modified_airport);
         }
     }
 
@@ -49,7 +51,7 @@ fn generate_airport_changes() {
 
         if !airport_exists_in_current_data {
             let modified_airport: ModifiedAirport = ModifiedAirport {
-                current_airport: Option::None,
+                current_airport: None,
                 new_airport: Option::from(airport).cloned(),
                 is_modified: Option::from(true),
                 renamed: Option::from(false),
@@ -57,7 +59,7 @@ fn generate_airport_changes() {
                 opened: Option::from(true),
             };
 
-            modified_airports.push(modified_airport);
+            opened_airports.push(modified_airport);
         }
     }
 
@@ -82,7 +84,7 @@ fn generate_airport_changes() {
                         opened: Option::Some(false),
                     };
 
-                    modified_airports.push(modified_airport);
+                    renamed_airports.push(modified_airport);
                 }
             }
         }
