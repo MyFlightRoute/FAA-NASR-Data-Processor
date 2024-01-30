@@ -19,7 +19,7 @@ fn main() {
 
 fn generate_airport_changes() {
     let current_airports: Vec<Airport> = airport::read_airports(false);
-    let mut future_airports: Vec<Airport> = airport::read_airports(true);
+    let future_airports: Vec<Airport> = airport::read_airports(true);
     let mut opened_airports: Vec<ModifiedAirport> = Vec::new();
     let mut closed_airports: Vec<ModifiedAirport> = Vec::new();
     let mut renamed_airports: Vec<ModifiedAirport> = Vec::new();
