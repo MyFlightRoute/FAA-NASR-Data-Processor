@@ -94,7 +94,7 @@ fn generate_airport_changes() {
             }
         }
 
-        writeln!(file, "").unwrap();
+        writeln!(file, " ").unwrap();
 
         for modified_airport in closed_airports {
             if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
@@ -103,7 +103,7 @@ fn generate_airport_changes() {
             }
         }
 
-        writeln!(file, "").unwrap();
+        writeln!(file, " ").unwrap();
 
         for modified_airport in renamed_airports {
             if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
