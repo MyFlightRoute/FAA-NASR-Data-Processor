@@ -3,10 +3,6 @@ use crate::airport::Airport;
 pub struct ModifiedAirport {
     pub(crate) current_airport: Option<Airport>,
     pub(crate) new_airport: Option<Airport>,
-    pub(crate) is_modified: Option<bool>,
-    pub(crate) renamed: Option<bool>,
-    pub(crate) closed: Option<bool>,
-    pub(crate) opened: Option<bool>,
 }
 
 impl ModifiedAirport {

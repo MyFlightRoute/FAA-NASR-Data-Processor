@@ -34,10 +34,6 @@ fn generate_airport_changes() {
             let modified_airport: ModifiedAirport = ModifiedAirport {
                 current_airport: Option::from(airport).cloned(),
                 new_airport: None,
-                is_modified: Option::from(true),
-                renamed: Option::from(false),
-                closed: Option::from(true),
-                opened: Option::from(false),
             };
 
             closed_airports.push(modified_airport);
@@ -53,10 +49,6 @@ fn generate_airport_changes() {
             let modified_airport: ModifiedAirport = ModifiedAirport {
                 current_airport: None,
                 new_airport: Option::from(airport).cloned(),
-                is_modified: Option::from(true),
-                renamed: Option::from(false),
-                closed: Option::from(false),
-                opened: Option::from(true),
             };
 
             opened_airports.push(modified_airport);
@@ -76,10 +68,6 @@ fn generate_airport_changes() {
                 let modified_airport: ModifiedAirport = ModifiedAirport {
                     current_airport: Option::from(current_airport_loop),
                     new_airport: Option::from(future_airport.cloned()),
-                    is_modified: Some(true),
-                    renamed: Some(true),
-                    closed: Some(false),
-                    opened: Some(false),
                 };
 
                 renamed_airports.push(modified_airport);
