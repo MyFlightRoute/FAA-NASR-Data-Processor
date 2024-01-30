@@ -93,7 +93,7 @@ fn generate_airport_changes() {
     let path = "data/changed_airports.txt";
     let states = vec!["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
     let mut pe_change = false;
-    let mut us_change = false;
+    // let us_change = false;
 
     if let Ok(mut file) = File::create(path) {
         writeln!(file, "# **Airport changes effective  // CYCLE**").unwrap();
@@ -128,6 +128,7 @@ fn generate_airport_changes() {
             writeln!(file, "** NO PILOTEDGE AREA CHANGES **").unwrap();
         }
 
+        // TODO: Fix Full USA Airport list
         /*writeln!(file, "## ** Airport changes outside PilotEdge service area **").unwrap();
 
         for modified_airport in opened_airports {
