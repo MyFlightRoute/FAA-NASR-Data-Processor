@@ -70,22 +70,19 @@ fn generate_airport_changes() {
 
         if airport_exists_in_new_data {
             let future_airport: Option<&Airport> = future_airports.iter().find(|x| x.airport_id == current_airport_loop.airport_id);
+            let name_change: bool = current_airport_loop.airport_name != future_airport.unwrap().airport_name;
 
-            if let Some(airport) = future_airport {
-                let name_change: bool = current_airport_loop.airport_name != future_airport.unwrap().airport_name;
+            if name_change {
+                let modified_airport: ModifiedAirport = ModifiedAirport {
+                    current_airport: Option::from(current_airport_loop),
+                    new_airport: Option::from(future_airport.cloned()),
+                    is_modified: Some(true),
+                    renamed: Some(true),
+                    closed: Some(false),
+                    opened: Some(false),
+                };
 
-                if name_change {
-                    let modified_airport: ModifiedAirport = ModifiedAirport {
-                        current_airport: Option::from(current_airport_loop),
-                        new_airport: Option::from(future_airport.cloned()),
-                        is_modified: Option::Some(true),
-                        renamed: Option::Some(true),
-                        closed: Option::Some(false),
-                        opened: Option::Some(false),
-                    };
-
-                    renamed_airports.push(modified_airport);
-                }
+                renamed_airports.push(modified_airport);
             }
         }
     }
