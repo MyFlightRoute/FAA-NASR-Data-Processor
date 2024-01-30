@@ -24,8 +24,8 @@ fn generate_airport_changes() {
     let mut closed_airports: Vec<ModifiedAirport> = Vec::new();
     let mut renamed_airports: Vec<ModifiedAirport> = Vec::new();
 
-    let mut airport_exists_in_new_data: bool = false;
-    let mut airport_exists_in_current_data: bool = false;
+    let mut airport_exists_in_new_data: bool;
+    let mut airport_exists_in_current_data: bool;
 
     for airport in &current_airports {
         airport_exists_in_new_data = future_airports.iter().any(|x| x.airport_id == airport.airport_id);
