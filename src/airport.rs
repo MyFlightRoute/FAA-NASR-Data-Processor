@@ -136,7 +136,7 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
     }
 
     // Attempt to open the file
-    if let Ok(file) = File::open(&path) {
+    return if let Ok(file) = File::open(&path) {
         // Create a buffered reader to efficiently read the file line by line
         let reader = io::BufReader::new(file);
 
@@ -266,12 +266,12 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
         }
 
         println!("Airports read.");
-        return airport_list;
+        airport_list
     } else {
         // Print an error message if opening the file fails
         println!("Error opening the file: {}", path);
 
-        return airport_list;
+        airport_list
     }
 
 }
