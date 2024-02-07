@@ -135,142 +135,136 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
     }
 
     // Attempt to open the file
-    if let Ok(file) = File::open(path) {
-        // Create a buffered reader to efficiently read the file line by line
-        let reader = io::BufReader::new(file);
+    let file =  File::open(path).expect("File failed to open");
 
-        // Iterate over each line in the file
-        for line in reader.lines() {
-            // Check if reading the line was successful
-            if let Ok(line) = line {
-                let clean_line = line.replace('"', "");
+    // Create a buffered reader to efficiently read the file line by line
+    let reader = io::BufReader::new(file);
 
-                // Split the line by commas and collect the values into a vector
-                let split_data: Vec<&str> = clean_line.split(',').collect();
+    // Iterate over each line in the file
+    for line in reader.lines() {
+        // Check if reading the line was successful
 
-                // Print the vector of values for the current line
-                //println!("{:?}", split_data);
+        let clean_line = line.unwrap().replace('"', "");
 
-                // If the line is a valid airport data block, create an airport
-                if split_data[0] != "EFF_DATE" {
-                    let new_airport = Airport {
-                        state_code: split_data[3].to_string(),
-                        airport_id: split_data[4].to_string(),
-                        city: split_data[5].to_string(),
-                        country_code: split_data[6].to_string(),
-                        region_code: split_data[7].to_string(),
-                        ado_code: split_data[8].to_string(),
-                        state_name: split_data[9].to_string(),
-                        county_name: split_data[10].to_string(),
-                        county_associated_state: split_data[11].to_string(),
-                        airport_name: split_data[12].to_string(),
-                        ownership_type_code: split_data[13].to_string(),
-                        facility_use_code: split_data[14].to_string(),
-                        latitude_degree: split_data[15].to_string(),
-                        latitude_minutes: split_data[16].to_string(),
-                        latitude_seconds: split_data[17].to_string(),
-                        latitude_hemisphere: split_data[18].to_string(),
-                        latitude_decimal: split_data[19].to_string(),
-                        longitude_degree: split_data[20].to_string(),
-                        longitude_minutes: split_data[21].to_string(),
-                        longitude_seconds: split_data[22].to_string(),
-                        longitude_hemisphere: split_data[23].to_string(),
-                        longitude_decimal: split_data[24].to_string(),
-                        survey_method_code: split_data[25].to_string(),
-                        elevation: split_data[26].to_string(),
-                        elevation_method_code: split_data[27].to_string(),
-                        magnetic_variation: split_data[28].to_string(),
-                        magnetic_hemisphere: split_data[29].to_string(),
-                        magnetic_variation_year: split_data[30].to_string(),
-                        tpa: split_data[31].to_string(),
-                        chart_name: split_data[32].to_string(),
-                        distance_city_to_airport: split_data[33].to_string(),
-                        direction_code: split_data[34].to_string(),
-                        acreage: split_data[35].to_string(),
-                        resp_artcc_id: split_data[36].to_string(),
-                        computer_id: split_data[37].to_string(),
-                        artcc_name: split_data[38].to_string(),
-                        fss_on_airport_flag: split_data[39].to_string(),
-                        fss_id: split_data[40].to_string(),
-                        fss_name: split_data[41].to_string(),
-                        phone_number: split_data[42].to_string(),
-                        toll_free_number: split_data[43].to_string(),
-                        alt_fss_id: split_data[44].to_string(),
-                        alt_fss_name: split_data[45].to_string(),
-                        alt_toll_free_number: split_data[46].to_string(),
-                        notam_id: split_data[47].to_string(),
-                        notam_flag: split_data[48].to_string(),
-                        activation_date: split_data[49].to_string(),
-                        airport_status: split_data[50].to_string(),
-                        far_139_type_code: split_data[51].to_string(),
-                        far_139_carrier_ser_code: split_data[52].to_string(),
-                        arff_cert_type_date: split_data[53].to_string(),
-                        nasp_code: split_data[54].to_string(),
-                        asp_analysis_dtrm_code: split_data[55].to_string(),
-                        custom_flag: split_data[56].to_string(),
-                        landing_flights_flag: split_data[57].to_string(),
-                        joint_use_flag: split_data[58].to_string(),
-                        military_landing_flag: split_data[59].to_string(),
-                        inspect_method_code: split_data[60].to_string(),
-                        inspector_code: split_data[61].to_string(),
-                        last_inspection: split_data[62].to_string(),
-                        last_information_response: split_data[63].to_string(),
-                        fuel_types: split_data[64].to_string(),
-                        airframe_repair_service_code: split_data[65].to_string(),
-                        powerplant_repair_service: split_data[66].to_string(),
-                        bottled_oxygen_type: split_data[67].to_string(),
-                        bulk_oxygen_type: split_data[68].to_string(),
-                        lighting_schedule: split_data[69].to_string(),
-                        beacon_light_schedule: split_data[70].to_string(),
-                        tower_type_code: split_data[71].to_string(),
-                        segment_circle_marker_flag: split_data[72].to_string(),
-                        beacon_lens_color: split_data[73].to_string(),
-                        landing_fee_flag: split_data[74].to_string(),
-                        medical_use_flag: split_data[75].to_string(),
-                        based_single_engine: split_data[76].to_string(),
-                        based_multi_engine: split_data[77].to_string(),
-                        based_jet_engine: split_data[78].to_string(),
-                        based_helicopter: split_data[79].to_string(),
-                        based_gliders: split_data[80].to_string(),
-                        based_military_aircraft: split_data[81].to_string(),
-                        based_ultralight_aircraft: split_data[82].to_string(),
-                        commercial_ops: split_data[83].to_string(),
-                        commuter_ops: split_data[84].to_string(),
-                        air_taxi_ops: split_data[85].to_string(),
-                        local_ops: split_data[86].to_string(),
-                        intermittent_ops: split_data[87].to_string(),
-                        military_aircraft_ops: split_data[88].to_string(),
-                        annual_ops_date: split_data[89].to_string(),
-                        airport_position_source: split_data[90].to_string(),
-                        position_source_date: split_data[91].to_string(),
-                        airport_elevation_source: split_data[92].to_string(),
-                        elevation_source_date: split_data[93].to_string(),
-                        contr_fuel_available: split_data[94].to_string(),
-                        transient_storage_buoy_flag: split_data[95].to_string(),
-                        transient_storage_hangar_flag: split_data[96].to_string(),
-                        transient_storage_tie_flag: split_data[97].to_string(),
-                        other_services: split_data[98].to_string(),
-                        wind_indicator_flag: split_data[99].to_string(),
-                        icao_id: split_data[100].to_string(),
-                        minimum_operational_network: split_data[101].to_string(),
-                        user_fee_flag: split_data[102].to_string(),
-                        cta: split_data[103].to_string(),
-                    };
+        // Split the line by commas and collect the values into a vector
+        let split_data: Vec<&str> = clean_line.split(',').collect();
 
-                    airport_list.push(new_airport);
+        // Print the vector of values for the current line
+        //println!("{:?}", split_data);
 
-                    // println!("New airport generated");
-                }
-            }
+        // If the line is a valid airport data block, create an airport
+        if split_data[0] != "EFF_DATE" {
+            let new_airport = Airport {
+                state_code: split_data[3].to_string(),
+                airport_id: split_data[4].to_string(),
+                city: split_data[5].to_string(),
+                country_code: split_data[6].to_string(),
+                region_code: split_data[7].to_string(),
+                ado_code: split_data[8].to_string(),
+                state_name: split_data[9].to_string(),
+                county_name: split_data[10].to_string(),
+                county_associated_state: split_data[11].to_string(),
+                airport_name: split_data[12].to_string(),
+                ownership_type_code: split_data[13].to_string(),
+                facility_use_code: split_data[14].to_string(),
+                latitude_degree: split_data[15].to_string(),
+                latitude_minutes: split_data[16].to_string(),
+                latitude_seconds: split_data[17].to_string(),
+                latitude_hemisphere: split_data[18].to_string(),
+                latitude_decimal: split_data[19].to_string(),
+                longitude_degree: split_data[20].to_string(),
+                longitude_minutes: split_data[21].to_string(),
+                longitude_seconds: split_data[22].to_string(),
+                longitude_hemisphere: split_data[23].to_string(),
+                longitude_decimal: split_data[24].to_string(),
+                survey_method_code: split_data[25].to_string(),
+                elevation: split_data[26].to_string(),
+                elevation_method_code: split_data[27].to_string(),
+                magnetic_variation: split_data[28].to_string(),
+                magnetic_hemisphere: split_data[29].to_string(),
+                magnetic_variation_year: split_data[30].to_string(),
+                tpa: split_data[31].to_string(),
+                chart_name: split_data[32].to_string(),
+                distance_city_to_airport: split_data[33].to_string(),
+                direction_code: split_data[34].to_string(),
+                acreage: split_data[35].to_string(),
+                resp_artcc_id: split_data[36].to_string(),
+                computer_id: split_data[37].to_string(),
+                artcc_name: split_data[38].to_string(),
+                fss_on_airport_flag: split_data[39].to_string(),
+                fss_id: split_data[40].to_string(),
+                fss_name: split_data[41].to_string(),
+                phone_number: split_data[42].to_string(),
+                toll_free_number: split_data[43].to_string(),
+                alt_fss_id: split_data[44].to_string(),
+                alt_fss_name: split_data[45].to_string(),
+                alt_toll_free_number: split_data[46].to_string(),
+                notam_id: split_data[47].to_string(),
+                notam_flag: split_data[48].to_string(),
+                activation_date: split_data[49].to_string(),
+                airport_status: split_data[50].to_string(),
+                far_139_type_code: split_data[51].to_string(),
+                far_139_carrier_ser_code: split_data[52].to_string(),
+                arff_cert_type_date: split_data[53].to_string(),
+                nasp_code: split_data[54].to_string(),
+                asp_analysis_dtrm_code: split_data[55].to_string(),
+                custom_flag: split_data[56].to_string(),
+                landing_flights_flag: split_data[57].to_string(),
+                joint_use_flag: split_data[58].to_string(),
+                military_landing_flag: split_data[59].to_string(),
+                inspect_method_code: split_data[60].to_string(),
+                inspector_code: split_data[61].to_string(),
+                last_inspection: split_data[62].to_string(),
+                last_information_response: split_data[63].to_string(),
+                fuel_types: split_data[64].to_string(),
+                airframe_repair_service_code: split_data[65].to_string(),
+                powerplant_repair_service: split_data[66].to_string(),
+                bottled_oxygen_type: split_data[67].to_string(),
+                bulk_oxygen_type: split_data[68].to_string(),
+                lighting_schedule: split_data[69].to_string(),
+                beacon_light_schedule: split_data[70].to_string(),
+                tower_type_code: split_data[71].to_string(),
+                segment_circle_marker_flag: split_data[72].to_string(),
+                beacon_lens_color: split_data[73].to_string(),
+                landing_fee_flag: split_data[74].to_string(),
+                medical_use_flag: split_data[75].to_string(),
+                based_single_engine: split_data[76].to_string(),
+                based_multi_engine: split_data[77].to_string(),
+                based_jet_engine: split_data[78].to_string(),
+                based_helicopter: split_data[79].to_string(),
+                based_gliders: split_data[80].to_string(),
+                based_military_aircraft: split_data[81].to_string(),
+                based_ultralight_aircraft: split_data[82].to_string(),
+                commercial_ops: split_data[83].to_string(),
+                commuter_ops: split_data[84].to_string(),
+                air_taxi_ops: split_data[85].to_string(),
+                local_ops: split_data[86].to_string(),
+                intermittent_ops: split_data[87].to_string(),
+                military_aircraft_ops: split_data[88].to_string(),
+                annual_ops_date: split_data[89].to_string(),
+                airport_position_source: split_data[90].to_string(),
+                position_source_date: split_data[91].to_string(),
+                airport_elevation_source: split_data[92].to_string(),
+                elevation_source_date: split_data[93].to_string(),
+                contr_fuel_available: split_data[94].to_string(),
+                transient_storage_buoy_flag: split_data[95].to_string(),
+                transient_storage_hangar_flag: split_data[96].to_string(),
+                transient_storage_tie_flag: split_data[97].to_string(),
+                other_services: split_data[98].to_string(),
+                wind_indicator_flag: split_data[99].to_string(),
+                icao_id: split_data[100].to_string(),
+                minimum_operational_network: split_data[101].to_string(),
+                user_fee_flag: split_data[102].to_string(),
+                cta: split_data[103].to_string(),
+            };
+
+        airport_list.push(new_airport);
+
+        // println!("New airport generated");
+
         }
-
-        println!("Airports read.");
-        airport_list
-    } else {
-        // Print an error message if opening the file fails
-        println!("Error opening the file: {}", path);
-
-        airport_list
     }
 
+    println!("Airports read.");
+    airport_list
 }
