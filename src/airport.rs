@@ -112,7 +112,12 @@ pub struct Airport {
 }
 
 pub fn read_airports(future_data: bool) -> Vec<Airport> {
-    let path: &str;
+    let path = if !future_data {
+        AIRPORT_DATA_LOCATION
+    } else {
+        PREVIEW_AIRPORT_DATA_LOCATION
+    };
+
     let mut airport_list: Vec<Airport> = Vec::new();
 
     if !future_data && !Path::new(AIRPORT_DATA_LOCATION).exists() {
@@ -127,12 +132,6 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
         thread::sleep(ONE_SECOND);
 
         return airport_list;
-    }
-
-    if !future_data {
-        path = AIRPORT_DATA_LOCATION;
-    } else {
-        path = PREVIEW_AIRPORT_DATA_LOCATION;
     }
 
     // Attempt to open the file
