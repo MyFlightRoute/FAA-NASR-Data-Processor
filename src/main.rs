@@ -67,7 +67,7 @@ fn generate_airport_changes() {
             if name_change {
                 let modified_airport: ModifiedAirport = ModifiedAirport {
                     current_airport: Option::from(current_airport_loop),
-                    new_airport: Option::from(future_airport.cloned()),
+                    new_airport: future_airport.cloned(),
                 };
 
                 renamed_airports.push(modified_airport);
