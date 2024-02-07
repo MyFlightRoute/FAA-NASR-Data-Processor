@@ -79,7 +79,7 @@ fn generate_airport_changes() {
 
     // Outputting list
     let path = "data/changed_airports.txt";
-    let states = vec!["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
+    let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
     let mut pe_change = false;
     // let us_change = false;
 
