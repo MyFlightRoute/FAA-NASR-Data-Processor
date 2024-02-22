@@ -1,4 +1,4 @@
-use std::{path::Path, thread, io::{self, BufRead}};
+use std::{path::Path, thread, io::{self, BufRead, Write}};
 use std::fs::File;
 
 use crate::ONE_SECOND;
@@ -267,4 +267,25 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
 
     println!("Airports read.");
     airport_list
+}
+
+pub fn export_airport_list() {
+    let airports: Vec<Airport> = read_airports(false);
+    let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
+    let path = "data/airports.csv";
+    let mut i = 0;
+
+    if let Ok(mut file) = File::create(path) {
+        writeln!(file, "id,AirportCode,AirportName,Class,AfdLink,CTAF,Atis,AtisPhone,Tower,Ground,Clearance,Elevation,TPA,noK,Ownership,Use,Latitude,Longitude,PEInactive,ARTCC,County,City,StateCode,StateName,created_at,updated_at").unwrap();
+
+        for airport in airports {
+            if states.contains(&&*airport.state_name) {
+                writeln!(file, "{},{},{},tbc,tbc,tbc,tbc,tbc,tbc,tbc,tbc,{},{},tbc,{},{},{},{},false,{},{},{},{},{},,", i.to_string(), airport.airport_id, airport.airport_name, airport.elevation, airport.tpa, airport.ownership_type_code, airport.facility_use_code, airport.latitude_decimal, airport.longitude_decimal, airport.artcc_name, airport.county_name, airport.city, airport.state_code, airport.state_name).unwrap();
+                i += 1;
+            }
+        }
+    }
+
+    println!("Airports exported.");
+    thread::sleep(ONE_SECOND);
 }

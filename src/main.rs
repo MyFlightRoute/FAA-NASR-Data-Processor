@@ -165,7 +165,7 @@ fn main_menu() {
     loop {
         match menu.prompt() {
             Ok(tuple) => match tuple {
-                (1, 1) => println!("Export Airport list"),
+                (1, 1) => airport::export_airport_list(),
                 (1, 2) => generate_airport_changes(),
                 (1, 3) => println!("Generate TEC Route changes"),
                 _ => (),
