@@ -4,7 +4,7 @@ use crate::airport::Airport;
 use crate::modified_airport::ModifiedAirport;
 
 pub mod airport;
-pub mod preferential_route;
+pub mod tec_route;
 mod modified_airport;
 
 const ONE_SECOND:Duration = Duration::from_secs(1);
