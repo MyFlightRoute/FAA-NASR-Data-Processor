@@ -111,6 +111,11 @@ pub struct Airport {
     cta: String,
 }
 
+pub struct ModifiedAirport {
+    pub(crate) current_airport: Option<Airport>,
+    pub(crate) new_airport: Option<Airport>,
+}
+
 pub fn read_airports(future_data: bool) -> Vec<Airport> {
     let path = if !future_data {
         AIRPORT_DATA_LOCATION
