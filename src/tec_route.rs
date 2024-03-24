@@ -1,4 +1,5 @@
 pub struct TecRoute {
+pub struct PreferentialRoute {
     origin_id: String,
     origin_city: String,
     origin_state_code: String,
