@@ -3,8 +3,8 @@ use std::path::Path;
 use std::{io::{self, BufRead}, thread};
 use crate::ONE_SECOND;
 
-const ROUTE_DATA_LOCATION: &str = "data/route.csv";
-const ROUTE_FUTURE_DATA_LOCATION: &str = "data/future_route.csv";
+const ROUTE_DATA_LOCATION: &str = "data/PFR_BASE.csv";
+const ROUTE_FUTURE_DATA_LOCATION: &str = "data/PFR_BASE_NEW.csv";
 
 pub struct PreferentialRoute {
     origin_id: String,
