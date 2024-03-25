@@ -210,7 +210,7 @@ pub fn generate_tec_route_changes() {
         }
 
         for modified_route in modified_routes.iter().cloned() {
-            if modified_route.altitude_change.unwrap() {
+            if modified_route.route_change.unwrap() {
                 writeln!(file, "{} ({} -> {}) // ROUTE CHANGED `{}`", modified_route.future_route.as_ref().unwrap().designator, modified_route.future_route.as_ref().unwrap().origin_id, modified_route.future_route.as_ref().unwrap().destination_id, modified_route.future_route.as_ref().unwrap().route_string).unwrap();
             }
         }
