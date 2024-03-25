@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::path::Path;
-use std::{io::{self, BufRead}, thread};
-use crate::ONE_SECOND;
+use std::{io::{self, BufRead, Write}, thread};
+use crate::{ONE_SECOND};
 
 const ROUTE_DATA_LOCATION: &str = "data/PFR_BASE.csv";
 const ROUTE_FUTURE_DATA_LOCATION: &str = "data/PFR_BASE_NEW.csv";
@@ -28,6 +28,14 @@ pub struct PreferentialRoute {
     coastal_fix: String,
     destination: String,
     route_string: String
+}
+
+#[derive(Clone)]
+struct ModifiedRoute {
+    current_route: Option<PreferentialRoute>,
+    future_route: Option<PreferentialRoute>,
+    altitude_change: Option<bool>,
+    route_change: Option<bool>
 }
 
 pub fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
