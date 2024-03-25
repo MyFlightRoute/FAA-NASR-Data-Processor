@@ -39,7 +39,7 @@ struct ModifiedRoute {
     route_change: Option<bool>
 }
 
-pub fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
+fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
     let path = if !future_data {
         ROUTE_DATA_LOCATION
     } else {
@@ -116,7 +116,7 @@ pub fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
     route_list
 }
 
-fn generate_tec_route_changes() {
+pub fn generate_tec_route_changes() {
     let current_routes: Vec<PreferentialRoute> = read_tec_routes( false);
     let future_routes: Vec<PreferentialRoute> = read_tec_routes( true);
     let mut new_routes: Vec<ModifiedRoute> = Vec::new();
