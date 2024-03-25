@@ -6,6 +6,7 @@ use crate::{ONE_SECOND};
 const ROUTE_DATA_LOCATION: &str = "data/PFR_BASE.csv";
 const ROUTE_FUTURE_DATA_LOCATION: &str = "data/PFR_BASE_NEW.csv";
 
+#[derive(PartialEq, Clone)]
 pub struct PreferentialRoute {
     origin_id: String,
     origin_city: String,
@@ -113,4 +114,112 @@ pub fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
 
     println!("TEC Routes read.");
     route_list
+}
+
+fn generate_tec_route_changes() {
+    let current_routes: Vec<PreferentialRoute> = read_tec_routes( false);
+    let future_routes: Vec<PreferentialRoute> = read_tec_routes( true);
+    let mut new_routes: Vec<ModifiedRoute> = Vec::new();
+    let mut removed_routes: Vec<ModifiedRoute> = Vec::new();
+    let mut modified_routes: Vec<ModifiedRoute> = Vec::new();
+
+    let mut route_exists_in_new_data: bool;
+    let mut route_exists_in_current_data: bool;
+    let mut routes_have_changed: bool = false;
+
+    for route in &current_routes {
+        route_exists_in_new_data = future_routes.iter().any(|x| x.designator == route.designator);
+
+        if !route_exists_in_new_data {
+            let modified_route: ModifiedRoute = ModifiedRoute {
+                current_route: Option::from(route).cloned(),
+                future_route: None,
+                altitude_change: None,
+                route_change: None
+            };
+
+            routes_have_changed = true;
+            removed_routes.push(modified_route);
+        }
+    }
+
+    println!("Deleted routes listed");
+
+    for route in &future_routes {
+        route_exists_in_current_data = current_routes.iter().any(|x| x.designator == route.designator);
+
+        if !route_exists_in_current_data {
+            let modified_route: ModifiedRoute = ModifiedRoute {
+                current_route: None,
+                future_route: Option::from(route).cloned(),
+                altitude_change: None,
+                route_change: None
+            };
+
+            routes_have_changed = true;
+            new_routes.push(modified_route);
+        }
+    }
+
+    println!("New routes listed");
+
+    for current_route_loop in current_routes {
+        route_exists_in_new_data = future_routes.iter().any(|x| x.designator == current_route_loop.designator);
+
+        if route_exists_in_new_data {
+            let new_route: Option<&PreferentialRoute> = future_routes.iter().find(|x| x.designator == current_route_loop.designator);
+            let altitude_change: bool = current_route_loop.altitude_description != new_route.unwrap().altitude_description;
+            let route_change: bool = current_route_loop.route_string != new_route.unwrap().route_string;
+
+            if route_change || altitude_change {
+                let modified_route: ModifiedRoute = ModifiedRoute {
+                    current_route: Option::from(current_route_loop),
+                    future_route: new_route.cloned(),
+                    altitude_change: Option::from(altitude_change),
+                    route_change: Option::from(route_change),
+                };
+
+                routes_have_changed = true;
+                modified_routes.push(modified_route);
+            }
+        }
+    }
+
+    println!("Modified routes listed");
+
+    // Outputting list
+    let path = "data/changed_tec_routes.txt";
+
+    if let Ok(mut file) = File::create(path) {
+        writeln!(file, "# **TEC Route changes effective  // CYCLE**").unwrap();
+
+        for new_route in new_routes {
+            writeln!(file, "{} ({} -> {}) // ADDED", new_route.future_route.as_ref().unwrap().designator, new_route.future_route.as_ref().unwrap().origin_id, new_route.future_route.as_ref().unwrap().destination_id).unwrap();
+        }
+
+        writeln!(file, " ").unwrap();
+
+        for removed_route in removed_routes {
+            writeln!(file, "{} ({} -> {}) // REMOVED", removed_route.current_route.as_ref().unwrap().designator, removed_route.current_route.as_ref().unwrap().origin_id, removed_route.current_route.as_ref().unwrap().destination_id).unwrap();
+        }
+
+        for modified_route in modified_routes.iter().cloned() {
+            if modified_route.altitude_change.unwrap() {
+                writeln!(file, "{} ({} -> {}) // ALTITUDE CHANGED `{}`", modified_route.future_route.as_ref().unwrap().designator, modified_route.future_route.as_ref().unwrap().origin_id, modified_route.future_route.as_ref().unwrap().destination_id, modified_route.future_route.as_ref().unwrap().altitude_description).unwrap();
+            }
+        }
+
+        for modified_route in modified_routes.iter().cloned() {
+            if modified_route.altitude_change.unwrap() {
+                writeln!(file, "{} ({} -> {}) // ROUTE CHANGED `{}`", modified_route.future_route.as_ref().unwrap().designator, modified_route.future_route.as_ref().unwrap().origin_id, modified_route.future_route.as_ref().unwrap().destination_id, modified_route.future_route.as_ref().unwrap().route_string).unwrap();
+            }
+        }
+
+        if !routes_have_changed {
+            writeln!(file, "** NO ROUTE CHANGES **").unwrap();
+        }
+    }
+
+    println!("File outputted at {}", path);
+    thread::sleep(ONE_SECOND);
 }
