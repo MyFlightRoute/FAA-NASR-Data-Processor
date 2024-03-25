@@ -167,9 +167,20 @@ pub fn generate_tec_route_changes() {
         route_exists_in_new_data = future_routes.iter().any(|x| x.designator == current_route_loop.designator);
 
         if route_exists_in_new_data {
-            let new_route: Option<&PreferentialRoute> = future_routes.iter().find(|x| x.designator == current_route_loop.designator);
-            let altitude_change: bool = current_route_loop.altitude_description != new_route.unwrap().altitude_description;
-            let route_change: bool = current_route_loop.route_string != new_route.unwrap().route_string;
+            let mut new_route: Option<&PreferentialRoute> = future_routes.iter().find(|x| x.designator == current_route_loop.designator);
+            let altitude_change: bool = current_route_loop.altitude_description != new_route.as_ref().unwrap().altitude_description;
+            let route_change: bool = current_route_loop.route_string != new_route.as_ref().unwrap().route_string;
+            let mut new_route_modifier: Option<PreferentialRoute>;
+
+
+            if new_route.unwrap().route_string == "" {
+                new_route_modifier = new_route.cloned();
+
+                new_route_modifier.as_mut().unwrap().route_string = "DCT".to_string();
+
+                new_route = new_route_modifier.as_ref();
+
+            }
 
             if route_change || altitude_change {
                 let modified_route: ModifiedRoute = ModifiedRoute {
