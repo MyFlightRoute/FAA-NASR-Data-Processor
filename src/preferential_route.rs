@@ -6,6 +6,7 @@ use crate::{ONE_SECOND};
 const ROUTE_DATA_LOCATION: &str = "data/PFR_BASE.csv";
 const ROUTE_FUTURE_DATA_LOCATION: &str = "data/PFR_BASE_NEW.csv";
 
+#[derive(PartialEq, Clone)]
 pub struct PreferentialRoute {
     origin_id: String,
     origin_city: String,
