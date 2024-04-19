@@ -87,7 +87,7 @@ fn generate_airport_changes() {
 
         for modified_airport in opened_airports {
             if states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
-                writeln!(file, "{} - {} // OPENED - ({}, {})", modified_airport.new_airport.as_ref().unwrap().airport_id, modified_airport.new_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.as_ref().unwrap().city, modified_airport.new_airport.as_ref().unwrap().state_code).unwrap();
+                writeln!(file, "{} - {} // OPENED ({}, {})", modified_airport.new_airport.as_ref().unwrap().airport_id, modified_airport.new_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.as_ref().unwrap().city, modified_airport.new_airport.as_ref().unwrap().state_code).unwrap();
                 pe_change = true;
             }
         }
@@ -105,7 +105,7 @@ fn generate_airport_changes() {
 
         for modified_airport in renamed_airports {
             if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
-                writeln!(file, "{} - {} // RENAMED {} // ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
+                writeln!(file, "{} - {} // RENAMED {} ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
                 pe_change = true;
             }
         }
