@@ -248,10 +248,10 @@ pub fn generate_mfr_tec_route_list() {
     let path: &str = "data/output/tec_routes.csv";
 
     if let Ok(mut file) = File::create(path) {
-        writeln!(file, "id,route_designator,origin_id,destination_id,altitude,aircraft,route_string,route_notes").unwrap();
+        writeln!(file, "id,route_designator,origin_id,destination_id,altitude,aircraft,route_string,route_notes,created_at,updated_at").unwrap();
 
         for tec_route in tec_routes {
-            writeln!(file, ",{},{},{},{},{},{},{}", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::from(""))).unwrap();
+            writeln!(file, ",{},{},{},{},{},{},{},,", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::from(""))).unwrap();
         }
     } else {
         println!("Failed to create file.");
