@@ -28,7 +28,8 @@ pub struct PreferentialRoute {
     inland_fac_fix: String,
     coastal_fix: String,
     destination: String,
-    route_string: String
+    route_string: String,
+    route_notes: Option<String>
 }
 
 #[derive(Clone)]
@@ -83,7 +84,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
         if split_data[9] == "TEC" {
             // Check the TEC Route is a Californian TEC Route
             if split_data[3] == "CA" && split_data[7] == "CA" { 
-                let new_tec_route = PreferentialRoute {
+                let mut new_tec_route = PreferentialRoute {
                     origin_id: split_data[1].to_string(),
                     origin_city: split_data[2].to_string(),
                     origin_state_code: split_data[3].to_string(),
@@ -104,9 +105,16 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                     inland_fac_fix: split_data[18].to_string(),
                     coastal_fix: split_data[19].to_string(),
                     destination: split_data[20].to_string(),
-                    route_string: split_data[21].to_string()
+                    route_string: split_data[21].to_string(),
+                    route_notes: None
                 };
 
+                if new_tec_route.special_area_description.contains("LAXE") {
+                    new_tec_route.route_notes = Option::from(String::from("LAX EAST"));
+                } else if new_tec_route.special_area_description.contains("LAXW") {
+                    new_tec_route.route_notes = Option::from(String::from("LAX WEST"));
+                }
+                
                 route_list.push(new_tec_route);
             }
         }
@@ -233,4 +241,19 @@ pub fn generate_tec_route_changes() {
 
     println!("File outputted at {}", path);
     thread::sleep(ONE_SECOND);
+}
+
+pub fn generate_mfr_tec_route_list() {
+    let tec_routes: Vec<PreferentialRoute> = read_tec_routes(false);
+    let path: &str = "data/output/tec_routes.csv";
+
+    if let Ok(mut file) = File::create(path) {
+        writeln!(file, "id,route_designator,origin_id,destination_id,altitude,aircraft,route_string,route_notes").unwrap();
+
+        for tec_route in tec_routes {
+            writeln!(file, ",{},{},{},{},{},{},{}", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::from(""))).unwrap();
+        }
+    } else {
+        println!("Failed to create file.");
+    }
 }

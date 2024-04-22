@@ -157,6 +157,7 @@ fn main_menu() {
         .with_menu_item("Export airport list", MenuAction::Nothing)
         .with_menu_item("Generate airport changes list", MenuAction::Nothing)
         .with_menu_item("Generate TEC Route changes list", MenuAction::Nothing)
+        .with_menu_item("Export TEC Routes", MenuAction::Nothing)
         .with_quit_button()
         .build();
 
@@ -166,6 +167,7 @@ fn main_menu() {
                 (1, 1) => airport::export_airport_list(),
                 (1, 2) => generate_airport_changes(),
                 (1, 3) => preferential_route::generate_tec_route_changes(),
+                (1, 4) => preferential_route::generate_mfr_tec_route_list(),
                 _ => (),
             },
 
