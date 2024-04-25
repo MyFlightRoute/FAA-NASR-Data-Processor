@@ -116,6 +116,12 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                 } else if new_tec_route.special_area_description.contains("SANE") {
                     new_tec_route.route_notes = Option::from(String::from("SAN EAST"));
                 }
+
+                if new_tec_route.route_dir_description == "SFOW" {
+                    new_tec_route.route_notes = Option::from(String::from("SFO West"));
+                } else if new_tec_route.route_dir_description == "SFOE" {
+                    new_tec_route.route_notes = Option::from(String::from("SFO East"));
+                }
                 
                 route_list.push(new_tec_route);
             }
