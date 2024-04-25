@@ -113,6 +113,8 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                     new_tec_route.route_notes = Option::from(String::from("LAX EAST"));
                 } else if new_tec_route.special_area_description.contains("LAXW") {
                     new_tec_route.route_notes = Option::from(String::from("LAX WEST"));
+                } else if new_tec_route.special_area_description.contains("SANE") {
+                    new_tec_route.route_notes = Option::from(String::from("SAN EAST"));
                 }
                 
                 route_list.push(new_tec_route);
