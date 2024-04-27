@@ -281,7 +281,7 @@ pub fn export_airport_list() {
     let mut i = 0;
 
     if let Ok(mut file) = File::create(path) {
-        writeln!(file, "id,AirportCode,AirportName,Class,AfdLink,CTAF,Atis,AtisPhone,Tower,Ground,Clearance,Elevation,TPA,noK,Ownership,Use,Latitude,Longitude,PEInactive,ARTCC,County,City,StateCode,StateName,created_at,updated_at").unwrap();
+        // writeln!(file, "id,AirportCode,AirportName,Class,AfdLink,CTAF,Atis,AtisPhone,Tower,Ground,Clearance,Elevation,TPA,noK,Ownership,Use,Latitude,Longitude,PEInactive,ARTCC,County,City,StateCode,StateName,created_at,updated_at").unwrap();
 
         for airport in airports {
             if states.contains(&&*airport.state_name) {
