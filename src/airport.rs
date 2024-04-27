@@ -277,7 +277,7 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
 pub fn export_airport_list() {
     let airports: Vec<Airport> = read_airports(false);
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
-    let path = "data/airports.csv";
+    let path = "data/output/airports.csv";
     let mut i = 0;
 
     if let Ok(mut file) = File::create(path) {

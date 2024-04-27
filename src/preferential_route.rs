@@ -215,7 +215,7 @@ pub fn generate_tec_route_changes() {
     println!("Modified routes listed");
 
     // Outputting list
-    let path = "data/changed_tec_routes.txt";
+    let path = "data/output/changed_tec_routes.txt";
 
     if let Ok(mut file) = File::create(path) {
         writeln!(file, "# **TEC Route changes effective  // CYCLE**").unwrap();
