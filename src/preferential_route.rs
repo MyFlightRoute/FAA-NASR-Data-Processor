@@ -124,6 +124,44 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                     }
                 }
 
+                if new_tec_route.region == "NorCal" {
+                    let split_description: Vec<&str> = new_tec_route.special_area_description.split(" TO ").collect();
+                    let split_departures: Vec<&str> = split_description[0].split(' ').collect();
+                    let split_arrivals: Vec<&str> = split_description[1].split(' ').collect();
+                    let base_route: PreferentialRoute = new_tec_route.clone();
+
+                    for departure in split_departures.clone() {
+                        for arrival in split_arrivals.clone() {
+                            let new_sub_route: PreferentialRoute = PreferentialRoute {
+                                origin_id: String::from(departure),
+                                origin_city: "".to_string(),
+                                origin_state_code: "".to_string(),
+                                origin_country_code: "".to_string(),
+                                destination_id: String::from(arrival),
+                                destination_city: "".to_string(),
+                                destination_state_code: "".to_string(),
+                                destination_country_code: "".to_string(),
+                                pfr_type_code: base_route.clone().pfr_type_code,
+                                route_number: base_route.clone().route_number,
+                                special_area_description: base_route.clone().special_area_description,
+                                altitude_description: base_route.clone().altitude_description,
+                                aircraft: base_route.clone().aircraft,
+                                hours: base_route.clone().hours,
+                                route_dir_description: base_route.clone().route_dir_description,
+                                designator: base_route.clone().designator,
+                                nar_type: base_route.clone().nar_type,
+                                inland_fac_fix: base_route.clone().inland_fac_fix,
+                                coastal_fix: base_route.clone().coastal_fix,
+                                destination: base_route.clone().destination,
+                                route_string: base_route.clone().route_string,
+                                route_notes: None,
+                                region: base_route.clone().region,
+                            };
+
+                            route_list.push(new_sub_route);
+                        }
+                    }
+                }
 
                 if new_tec_route.special_area_description.contains("LAXE") {
                     new_tec_route.route_notes = Option::from(String::from("LAX EAST"));
