@@ -5,7 +5,6 @@ use crate::{ONE_SECOND};
 
 const ROUTE_DATA_LOCATION: &str = "data/PFR_BASE.csv";
 const ROUTE_FUTURE_DATA_LOCATION: &str = "data/PFR_BASE_NEW.csv";
-
 #[derive(PartialEq, Clone)]
 pub struct PreferentialRoute {
     origin_id: String,
@@ -29,7 +28,8 @@ pub struct PreferentialRoute {
     coastal_fix: String,
     destination: String,
     route_string: String,
-    route_notes: Option<String>
+    route_notes: Option<String>,
+    region: String
 }
 
 #[derive(Clone)]
@@ -71,6 +71,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
 
     // Iterate over each line in the file
     for line in reader.lines() {
+        let norcal_tec_route_ids: Vec<&str> = vec!["SJC", "MOD", "SQL", "MHR", "HWD", "LVK", "MRY", "NUQ", "OAK", "SAC", "SCK", "SFO"];
         // Check if reading the line was successful
         let clean_line = line.unwrap().replace('"', "");
 
@@ -106,12 +107,23 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                     coastal_fix: split_data[19].to_string(),
                     destination: split_data[20].to_string(),
                     route_string: split_data[21].to_string(),
-                    route_notes: None
+                    route_notes: None,
+                    region: String::from("TBC")
                 };
 
                 if new_tec_route.route_string == "" {
                     new_tec_route.route_string = String::from("DCT");
                 }
+
+                for route_id in norcal_tec_route_ids {
+                    if new_tec_route.designator[0..3] == String::from(route_id) {
+                        new_tec_route.region = String::from("NorCal");
+                        break;
+                    } else {
+                        new_tec_route.region = String::from("SoCal");
+                    }
+                }
+
 
                 if new_tec_route.special_area_description.contains("LAXE") {
                     new_tec_route.route_notes = Option::from(String::from("LAX EAST"));
@@ -254,7 +266,7 @@ pub fn generate_mfr_tec_route_list() {
         // writeln!(file, "id,route_designator,origin_id,destination_id,altitude,aircraft,route_string,route_notes,created_at,updated_at").unwrap();
 
         for tec_route in tec_routes {
-            writeln!(file, ",{},{},{},{},{},{},{},,", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::from(""))).unwrap();
+            writeln!(file, ",{},{},{},{},{},{},{},{},,", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::from("")), tec_route.region).unwrap();
         }
     } else {
         println!("Failed to create file.");
