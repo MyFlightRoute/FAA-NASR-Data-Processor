@@ -112,7 +112,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                 if new_tec_route.route_string == "" {
                     new_tec_route.route_string = String::from("DCT");
                 }
-                
+
                 if new_tec_route.special_area_description.contains("LAXE") {
                     new_tec_route.route_notes = Option::from(String::from("LAX EAST"));
                 } else if new_tec_route.special_area_description.contains("LAXW") {
@@ -190,9 +190,10 @@ pub fn generate_tec_route_changes() {
             let mut new_route: Option<&PreferentialRoute> = future_routes.iter().find(|x| x.designator == current_route_loop.designator);
             let altitude_change: bool = current_route_loop.altitude_description != new_route.as_ref().unwrap().altitude_description;
             let route_change: bool = current_route_loop.route_string != new_route.as_ref().unwrap().route_string;
-            let mut new_route_modifier: Option<PreferentialRoute>;
+            let route_number_matches: bool = current_route_loop.route_number == new_route.as_ref().unwrap().route_number;
+            let route_description_matches: bool = current_route_loop.special_area_description == new_route.as_ref().unwrap().special_area_description;
 
-            if route_change || altitude_change {
+            if (route_change || altitude_change) && route_number_matches && route_description_matches {
                 let modified_route: ModifiedRoute = ModifiedRoute {
                     current_route: Option::from(current_route_loop),
                     future_route: new_route.cloned(),
