@@ -1,7 +1,7 @@
 use std::{path::Path, thread, io::{self, BufRead, Write}};
 use std::fs::File;
 
-use crate::ONE_SECOND;
+use crate::{airport, ONE_SECOND};
 
 const AIRPORT_DATA_LOCATION: &str = "data/APT_BASE.csv";
 const PREVIEW_AIRPORT_DATA_LOCATION: &str = "data/APT_BASE_NEW.csv";
@@ -272,6 +272,142 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
 
     println!("Airports read.");
     airport_list
+}
+
+pub fn generate_airport_changes() {
+    let current_airports: Vec<Airport> = airport::read_airports(false);
+    let future_airports: Vec<Airport> = airport::read_airports(true);
+    let mut opened_airports: Vec<ModifiedAirport> = Vec::new();
+    let mut closed_airports: Vec<ModifiedAirport> = Vec::new();
+    let mut renamed_airports: Vec<ModifiedAirport> = Vec::new();
+
+    let mut airport_exists_in_new_data: bool;
+    let mut airport_exists_in_current_data: bool;
+
+    for airport in &current_airports {
+        airport_exists_in_new_data = future_airports.iter().any(|x| x.airport_id == airport.airport_id);
+
+        if !airport_exists_in_new_data {
+            let modified_airport: ModifiedAirport = ModifiedAirport {
+                current_airport: Option::from(airport).cloned(),
+                new_airport: None,
+            };
+
+            closed_airports.push(modified_airport);
+        }
+    }
+
+    println!("Closed airports listed");
+
+    for airport in &future_airports {
+        airport_exists_in_current_data = current_airports.iter().any(|x| x.airport_id == airport.airport_id);
+
+        if !airport_exists_in_current_data {
+            let modified_airport: ModifiedAirport = ModifiedAirport {
+                current_airport: None,
+                new_airport: Option::from(airport).cloned(),
+            };
+
+            opened_airports.push(modified_airport);
+        }
+    }
+
+    println!("Opened airports listed");
+
+    for current_airport_loop in current_airports {
+        airport_exists_in_new_data = future_airports.iter().any(|x| x.airport_id == current_airport_loop.airport_id);
+
+        if airport_exists_in_new_data {
+            let future_airport: Option<&Airport> = future_airports.iter().find(|x| x.airport_id == current_airport_loop.airport_id);
+            let name_change: bool = current_airport_loop.airport_name != future_airport.unwrap().airport_name;
+
+            if name_change {
+                let modified_airport: ModifiedAirport = ModifiedAirport {
+                    current_airport: Option::from(current_airport_loop),
+                    new_airport: future_airport.cloned(),
+                };
+
+                renamed_airports.push(modified_airport);
+            }
+        }
+    }
+
+    println!("Renamed airports listed");
+
+    // Outputting list
+    let path = "data/output/changed_airports.txt";
+    let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
+    let mut pe_change = false;
+    // let us_change = false;
+
+    if let Ok(mut file) = File::create(path) {
+        writeln!(file, "# **Airport changes effective  // CYCLE**").unwrap();
+        writeln!(file, "## **PilotEdge Area Changes **").unwrap();
+
+        for modified_airport in opened_airports {
+            if states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
+                writeln!(file, "{} - {} // OPENED ({}, {})", modified_airport.new_airport.as_ref().unwrap().airport_id, modified_airport.new_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.as_ref().unwrap().city, modified_airport.new_airport.as_ref().unwrap().state_code).unwrap();
+                pe_change = true;
+            }
+        }
+
+        writeln!(file, " ").unwrap();
+
+        for modified_airport in closed_airports {
+            if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
+                writeln!(file, "{} - {} // CLOSED ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
+                pe_change = true;
+            }
+        }
+
+        writeln!(file, " ").unwrap();
+
+        for modified_airport in renamed_airports {
+            if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
+                writeln!(file, "{} - {} // RENAMED {} ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
+                pe_change = true;
+            }
+        }
+
+        if !pe_change {
+            writeln!(file, "** NO PILOTEDGE AREA CHANGES **").unwrap();
+        }
+
+        // TODO: Fix Full USA Airport list
+        /*writeln!(file, "## ** Airport changes outside PilotEdge service area **").unwrap();
+
+        for modified_airport in opened_airports {
+            if !states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
+                writeln!(file, "{} - {} // OPENED - ({}, {})", modified_airport.new_airport.as_ref().unwrap().airport_id, modified_airport.new_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.as_ref().unwrap().city, modified_airport.new_airport.as_ref().unwrap().state_code).unwrap();
+                us_change = true;
+            }
+        }
+
+        writeln!(file, "").unwrap();
+
+        for modified_airport in closed_airports {
+            if !states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
+                writeln!(file, "{} - {} // CLOSED ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
+                us_change = true;
+            }
+        }
+
+        writeln!(file, "").unwrap();
+
+        for modified_airport in renamed_airports {
+            if !states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
+                writeln!(file, "{} - {} // RENAMED {} // ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
+                us_change = true;
+            }
+        }
+
+        if !pe_change {
+            writeln!(file, "** NO CHANGES OUTSIDE PILOTEDGE AREA **").unwrap();
+        }*/
+    }
+
+    println!("File outputted at {}", path);
+    thread::sleep(ONE_SECOND);
 }
 
 pub fn export_airport_list() {
