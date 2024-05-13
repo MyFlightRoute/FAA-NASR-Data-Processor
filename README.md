@@ -6,7 +6,6 @@
 The NASR Data processor is a tool for extracting data from the FAA NASR files and make them useful for MyFlightRoute. Additionally, it creates changelogs for Californian TEC Routes and Airport changes inside of the [PilotEdge](https://pilotedge.net) service area.
 
 ## Requirements
-Running the Program
 - [NASR Data](https://www.faa.gov/air_traffic/flight_info/aeronav/Aero_Data/NASR_Subscription/)
   - Currently, only Airport and Preferred Route/Tower En route Control data is used.
 
