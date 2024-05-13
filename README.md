@@ -16,5 +16,6 @@ With some tweaking, it will be possible to modify the output to make it useful f
 TBC
 
 ## Contributing
+Please see [CONTRIBUTING.md](CONTRIBUTING)
 
 TBC
