@@ -20,7 +20,8 @@ The NASR Data processor is a tool for extracting data from the FAA NASR files an
 7. Run the program and enjoy.
 
 ## Contributing
-Please see [CONTRIBUTING.md](CONTRIBUTING)
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Contact
 To contact me, please email contact@myflightroute.com or join our [Discord](https://discord.gg/RcGaSD4Wcm) server.
