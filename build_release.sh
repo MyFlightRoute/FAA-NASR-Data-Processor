@@ -1,3 +1,6 @@
+# Build script for building on MacOS based devices.
+# For other systems, you may need to remove all Apple references from this file.
+
 rustup target add x86_64-unknown-linux-musl
 rustup target add x86_64-pc-windows-gnu
 rustup target add x86_64-apple-darwin
