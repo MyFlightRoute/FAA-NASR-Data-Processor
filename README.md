@@ -7,7 +7,7 @@ The NASR Data processor is a tool for extracting data from the FAA NASR files an
 
 ## Requirements
 Running the Program
-- [NASR Data]([28 Day NASR Subscription](https://www.faa.gov/air_traffic/flight_info/aeronav/Aero_Data/NASR_Subscription/))
+- [NASR Data](https://www.faa.gov/air_traffic/flight_info/aeronav/Aero_Data/NASR_Subscription/)
   - Currently, only Airport and Preferred Route/Tower En route Control data is used.
 
 
