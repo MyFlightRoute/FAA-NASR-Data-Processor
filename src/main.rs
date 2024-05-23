@@ -8,9 +8,9 @@ const ONE_SECOND:Duration = Duration::from_secs(1);
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 
 fn main() {
-    fs::create_dir_all("./data").expect("Failed to create");
-    
-    println!("FAA NASR Data Processor v{}", VERSION.unwrap_or("Unknown"));
+    fs::create_dir_all("./data").expect("Failed to create data folder");
+    fs::create_dir_all("./data/output").expect("Failed to create output folder");
+
     main_menu();
 }
 
@@ -25,8 +25,11 @@ fn main_menu() {
         .build();
 
     loop {
+        clear_console();
+        println!("FAA NASR Data Processor v{}", VERSION.unwrap_or("Unknown"));
         match menu.prompt() {
             Ok(tuple) => match tuple {
+                (0, 0) => std::process::exit(0), // Quit option
                 (1, 1) => airport::export_airport_list(),
                 (1, 2) => airport::generate_airport_changes(),
                 (1, 3) => preferential_route::generate_tec_route_changes(),
@@ -43,4 +46,9 @@ fn main_menu() {
             }
         } 
     }
+}
+
+fn clear_console() {
+    // Clear the screen and put the cursor at first row & first col of the screen
+    print!("\x1B[2J\x1B[1;1H");
 }
