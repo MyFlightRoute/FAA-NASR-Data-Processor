@@ -9,7 +9,7 @@ const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 
 fn main() {
     fs::create_dir_all("./data").expect("Failed to create data folder");
-    fs::create_dir_all(("./data/output")).expect("Failed to create output folder");
+    fs::create_dir_all("./data/output").expect("Failed to create output folder");
 
     main_menu();
 }
