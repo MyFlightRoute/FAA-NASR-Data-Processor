@@ -27,6 +27,7 @@ fn main_menu() {
     loop {
         match menu.prompt() {
             Ok(tuple) => match tuple {
+                (0, 0) => std::process::exit(0), // Quit option
                 (1, 1) => airport::export_airport_list(),
                 (1, 2) => airport::generate_airport_changes(),
                 (1, 3) => preferential_route::generate_tec_route_changes(),
