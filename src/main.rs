@@ -1,5 +1,6 @@
 use std::{fs::self, time::Duration};
 use menu_genie::{MenuAction, MenuBuilder, MgErrorKind};
+use ts_lib::clear_console;
 
 pub mod airport;
 pub mod preferential_route;
@@ -46,9 +47,4 @@ fn main_menu() {
             }
         } 
     }
-}
-
-fn clear_console() {
-    // Clear the screen and put the cursor at first row & first col of the screen
-    print!("\x1B[2J\x1B[1;1H");
 }
