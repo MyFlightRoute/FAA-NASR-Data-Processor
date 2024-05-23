@@ -9,8 +9,7 @@ const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 
 fn main() {
     fs::create_dir_all("./data").expect("Failed to create");
-    
-    println!("FAA NASR Data Processor v{}", VERSION.unwrap_or("Unknown"));
+
     main_menu();
 }
 
@@ -25,6 +24,8 @@ fn main_menu() {
         .build();
 
     loop {
+        clear_console();
+        println!("FAA NASR Data Processor v{}", VERSION.unwrap_or("Unknown"));
         match menu.prompt() {
             Ok(tuple) => match tuple {
                 (0, 0) => std::process::exit(0), // Quit option
@@ -44,4 +45,9 @@ fn main_menu() {
             }
         } 
     }
+}
+
+fn clear_console() {
+    // Clear the screen and put the cursor at first row & first col of the screen
+    print!("\x1B[2J\x1B[1;1H");
 }
