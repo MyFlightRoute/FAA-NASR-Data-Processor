@@ -159,7 +159,7 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
 
         // If the line is a valid airport data block, create an airport
         if split_data[0] != "EFF_DATE" {
-            let new_airport = Airport {
+            let mut new_airport = Airport {
                 state_code: split_data[3].to_string(),
                 airport_id: split_data[4].to_string(),
                 city: split_data[5].to_string(),
@@ -263,9 +263,13 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
                 cta: split_data[103].to_string(),
             };
 
-        airport_list.push(new_airport);
+            if new_airport.icao_id.clone() == "" {
+                new_airport.icao_id = new_airport.airport_id.clone();
+            }
 
-        // println!("New airport generated");
+            airport_list.push(new_airport);
+
+            // println!("New airport generated");
 
         }
     }
@@ -421,7 +425,7 @@ pub fn export_airport_list() {
 
         for airport in airports {
             if states.contains(&&*airport.state_name) {
-                writeln!(file, "{},{},{},tbc,tbc,tbc,tbc,tbc,tbc,tbc,tbc,{},{},tbc,{},{},{},{},false,{},{},{},{},{},,", i.to_string(), airport.airport_id, airport.airport_name, airport.elevation, airport.tpa, airport.ownership_type_code, airport.facility_use_code, airport.latitude_decimal, airport.longitude_decimal, airport.artcc_name, airport.county_name, airport.city, airport.state_code, airport.state_name).unwrap();
+                writeln!(file, "{},{},{},tbc,tbc,tbc,tbc,tbc,tbc,tbc,tbc,{},{},tbc,{},{},{},{},false,{},{},{},{},{},,{}", i.to_string(), airport.airport_id, airport.airport_name, airport.elevation, airport.tpa, airport.ownership_type_code, airport.facility_use_code, airport.latitude_decimal, airport.longitude_decimal, airport.artcc_name, airport.county_name, airport.city, airport.state_code, airport.state_name, airport.icao_id).unwrap();
                 i += 1;
             }
         }
