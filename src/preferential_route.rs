@@ -28,6 +28,7 @@ pub struct PreferentialRoute {
     coastal_fix: String,
     destination: String,
     route_string: String,
+    region: String,
 }
 
 #[derive(Clone)]
@@ -105,6 +106,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                     coastal_fix: split_data[19].to_string(),
                     destination: split_data[20].to_string(),
                     route_string: split_data[21].to_string(),
+                    region: String::from("TBC")
                 };
 
                 if new_tec_route.route_string == "" {
