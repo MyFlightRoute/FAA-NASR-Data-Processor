@@ -239,7 +239,7 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
                 cta: split_data[89].to_string(),
             };
 
-            if new_airport.icao_id.clone() == "" {
+            if new_airport.icao_id.clone().is_empty() {
                 new_airport.icao_id = new_airport.airport_id.clone();
             }
 

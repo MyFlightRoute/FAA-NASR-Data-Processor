@@ -111,7 +111,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                     region: String::from("TBC")
                 };
 
-                if new_tec_route.route_string == "" {
+                if new_tec_route.route_string.is_empty() {
                     new_tec_route.route_string = String::from("DCT");
                 }
 
