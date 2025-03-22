@@ -234,10 +234,15 @@ pub fn generate_tec_route_changes() {
     println!("New routes listed");
 
     for current_route_loop in current_routes {
-        route_exists_in_new_data = future_routes.iter().any(|x| x.designator == current_route_loop.designator);
+        route_exists_in_new_data = future_routes.iter().any(|x| x.designator == current_route_loop.designator) && future_routes.iter().any(|x| x.origin_id == current_route_loop.origin_id) && future_routes.iter().any(|x| x.destination_id == current_route_loop.destination_id);
 
         if route_exists_in_new_data {
-            let new_route: Option<&PreferentialRoute> = future_routes.iter().find(|x| x.designator == current_route_loop.designator);
+            let new_route: Option<&PreferentialRoute> = future_routes.iter().find(|x|
+                x.designator == current_route_loop.designator &&
+                    x.origin_id == current_route_loop.origin_id &&
+                    x.destination_id == current_route_loop.destination_id
+            );
+
             let altitude_change: bool = current_route_loop.altitude_description != new_route.as_ref().unwrap().altitude_description;
             let route_change: bool = current_route_loop.route_string != new_route.as_ref().unwrap().route_string;
             let route_number_matches: bool = current_route_loop.route_number == new_route.as_ref().unwrap().route_number;
