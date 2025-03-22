@@ -152,6 +152,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                                 coastal_fix: base_route.clone().coastal_fix,
                                 destination: base_route.clone().destination,
                                 route_string: base_route.clone().route_string,
+                                region: base_route.clone().region,
                             };
 
                             route_list.push(new_sub_route);
