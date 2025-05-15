@@ -118,6 +118,8 @@ rust-project.json
 # VS Code environment
 /.vscode/launch.json
 
+# Rust Build Artifacts
+src/build.rs
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,jupyternotebooks
