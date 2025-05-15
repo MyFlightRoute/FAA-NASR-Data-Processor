@@ -4,6 +4,7 @@ use ts_lib::clear_console;
 
 pub mod airport;
 pub mod preferential_route;
+mod build;
 
 const ONE_SECOND:Duration = Duration::from_secs(1);
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
@@ -27,7 +28,7 @@ fn main_menu() {
 
     loop {
         clear_console();
-        println!("FAA NASR Data Processor v{}", VERSION.unwrap_or("Unknown"));
+        println!("FAA NASR Data Processor v{}-{}", VERSION.unwrap_or("Unknown"), build::BUILD_NUMBER);
         match menu.prompt() {
             Ok(tuple) => match tuple {
                 (0, 0) => std::process::exit(0), // Quit option
