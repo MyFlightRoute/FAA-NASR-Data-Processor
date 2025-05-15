@@ -2,7 +2,7 @@ use std::fs;
 use std::io::Write;
 
 fn main() {
-    let path = "build/build_number.txt";
+    let path = "build_number.txt";
 
     // Read the current build number or default to 0
     let current = fs::read_to_string(path)
