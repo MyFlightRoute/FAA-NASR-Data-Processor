@@ -1,0 +1,57 @@
+name: Build and Draft Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on tags like v1.0.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: |
+            x86_64-unknown-linux-musl
+            x86_64-pc-windows-gnu
+            x86_64-apple-darwin
+            aarch64-apple-darwin
+
+      - name: Install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Extract version
+        id: version
+        run: echo "TAG=${GITHUB_REF##*/}" >> "$GITHUB_OUTPUT"
+
+      - name: Build with cross
+        run: |
+          mkdir -p target/release
+          cross build --release --target x86_64-unknown-linux-musl
+          cross build --release --target x86_64-pc-windows-gnu
+          cross build --release --target x86_64-apple-darwin
+          cross build --release --target aarch64-apple-darwin
+
+          SUFFIX="${{ steps.version.outputs.TAG }}+build${{ github.run_number }}"
+
+          cp target/x86_64-unknown-linux-musl/release/faa-nasr-data-processor "target/release/faa-nasr-data-processor_x86_64-unknown-linux-musl_${SUFFIX}"
+          cp target/x86_64-pc-windows-gnu/release/faa-nasr-data-processor.exe "target/release/faa-nasr-data-processor_x86_64-windows-gnu_${SUFFIX}.exe"
+          cp target/x86_64-apple-darwin/release/faa-nasr-data-processor "target/release/faa-nasr-data-processor_x86_64-apple-darwin_${SUFFIX}"
+          cp target/aarch64-apple-darwin/release/faa-nasr-data-processor "target/release/faa-nasr-data-processor_aarch64-apple-darwin_${SUFFIX}"
+
+      - name: Create draft GitHub release and upload binaries
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: |
+            target/release/faa-nasr-data-processor_x86_64-unknown-linux-musl_*
+            target/release/faa-nasr-data-processor_x86_64-windows-gnu_*.exe
+            target/release/faa-nasr-data-processor_x86_64-apple-darwin_*
+            target/release/faa-nasr-data-processor_aarch64-apple-darwin_*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
