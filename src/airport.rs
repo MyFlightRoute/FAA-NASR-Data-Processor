@@ -345,7 +345,6 @@ pub fn generate_airport_changes() {
     let path = "data/output/changed_airports.txt";
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
     let mut pe_change = false;
-    // let us_change = false;
 
     let mut changes = AirportChanges {
         opened: Vec::new(),
@@ -355,7 +354,6 @@ pub fn generate_airport_changes() {
 
     if let Ok(mut file) = File::create(path) {
         writeln!(file, "# **Airport changes effective  // CYCLE**").unwrap();
-        writeln!(file, "## **PilotEdge Area Changes **").unwrap();
 
         for modified_airport in opened_airports {
             if states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
@@ -411,38 +409,6 @@ pub fn generate_airport_changes() {
         if !pe_change {
             writeln!(file, "** NO PILOTEDGE AREA CHANGES **").unwrap();
         }
-
-        // TODO: Fix Full USA Airport list
-        /*writeln!(file, "## ** Airport changes outside PilotEdge service area **").unwrap();
-
-        for modified_airport in opened_airports {
-            if !states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
-                writeln!(file, "{} - {} // OPENED - ({}, {})", modified_airport.new_airport.as_ref().unwrap().airport_id, modified_airport.new_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.as_ref().unwrap().city, modified_airport.new_airport.as_ref().unwrap().state_code).unwrap();
-                us_change = true;
-            }
-        }
-
-        writeln!(file, "").unwrap();
-
-        for modified_airport in closed_airports {
-            if !states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
-                writeln!(file, "{} - {} // CLOSED ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
-                us_change = true;
-            }
-        }
-
-        writeln!(file, "").unwrap();
-
-        for modified_airport in renamed_airports {
-            if !states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
-                writeln!(file, "{} - {} // RENAMED {} // ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
-                us_change = true;
-            }
-        }
-
-        if !pe_change {
-            writeln!(file, "** NO CHANGES OUTSIDE PILOTEDGE AREA **").unwrap();
-        }*/
     }
 
     println!("File outputted at {}", path);
