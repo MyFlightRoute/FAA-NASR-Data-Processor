@@ -126,6 +126,8 @@ struct RenamedEntry {
 
 #[derive(Serialize)]
 struct AirportChanges {
+    cycle: String,
+    effective_date: String,
     opened: Vec<AirportEntry>,
     closed: Vec<AirportEntry>,
     renamed: Vec<RenamedEntry>,
@@ -282,6 +284,18 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
 }
 
 pub fn generate_airport_changes() {
+    print!("Enter cycle (e.g. 2510): ");
+    io::Write::flush(&mut io::stdout()).unwrap();
+    let mut cycle = String::new();
+    io::stdin().read_line(&mut cycle).unwrap();
+    let cycle = cycle.trim().to_string();
+
+    print!("Enter effective date (e.g. 2025-10-09): ");
+    io::Write::flush(&mut io::stdout()).unwrap();
+    let mut effective_date = String::new();
+    io::stdin().read_line(&mut effective_date).unwrap();
+    let effective_date = effective_date.trim().to_string();
+
     let current_airports: Vec<Airport> = airport::read_airports(false);
     let future_airports: Vec<Airport> = airport::read_airports(true);
     let mut opened_airports: Vec<ModifiedAirport> = Vec::new();
@@ -347,6 +361,8 @@ pub fn generate_airport_changes() {
     let mut pe_change = false;
 
     let mut changes = AirportChanges {
+        cycle,
+        effective_date,
         opened: Vec::new(),
         closed: Vec::new(),
         renamed: Vec::new(),
