@@ -358,7 +358,6 @@ pub fn generate_airport_changes() {
     // Outputting list
     let path = "data/output/changed_airports.md";
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
-    let mut pe_change = false;
 
     let mut changes = AirportChanges {
         cycle,
@@ -382,7 +381,6 @@ pub fn generate_airport_changes() {
                     state_code: a.state_code.clone(),
                     state_name: a.state_name.clone(),
                 });
-                pe_change = true;
             }
         }
 
@@ -399,7 +397,6 @@ pub fn generate_airport_changes() {
                     state_code: a.state_code.clone(),
                     state_name: a.state_name.clone(),
                 });
-                pe_change = true;
             }
         }
 
@@ -418,12 +415,7 @@ pub fn generate_airport_changes() {
                     state_code: cur.state_code.clone(),
                     state_name: cur.state_name.clone(),
                 });
-                pe_change = true;
             }
-        }
-
-        if !pe_change {
-            writeln!(file, "** NO PILOTEDGE AREA CHANGES **").unwrap();
         }
     }
 
