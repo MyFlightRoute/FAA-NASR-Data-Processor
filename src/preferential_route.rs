@@ -307,7 +307,7 @@ pub fn generate_tec_route_changes() {
     println!("Modified routes listed");
 
     // Outputting list
-    let path = format!("data/output/pfr/{}.md", &cycle);
+    let path = format!("data/output/pfr/{}.txt", &cycle);
 
     let mut changes = RouteChanges {
         cycle,
