@@ -1,5 +1,6 @@
-use std::{path::Path, thread, io::{self, BufRead, Write}};
+use std::{path::Path, thread, io::{self, BufRead, Write}, fs};
 use std::fs::File;
+use serde::Serialize;
 
 use crate::{airport, ONE_SECOND};
 
@@ -102,6 +103,32 @@ pub struct Airport {
 pub struct ModifiedAirport {
     pub(crate) current_airport: Option<Airport>,
     pub(crate) new_airport: Option<Airport>,
+}
+
+#[derive(Serialize)]
+struct AirportEntry {
+    airport_id: String,
+    airport_name: String,
+    city: String,
+    state_code: String,
+    state_name: String,
+}
+
+#[derive(Serialize)]
+struct RenamedEntry {
+    airport_id: String,
+    old_name: String,
+    new_name: String,
+    city: String,
+    state_code: String,
+    state_name: String,
+}
+
+#[derive(Serialize)]
+struct AirportChanges {
+    opened: Vec<AirportEntry>,
+    closed: Vec<AirportEntry>,
+    renamed: Vec<RenamedEntry>,
 }
 
 pub fn read_airports(future_data: bool) -> Vec<Airport> {
@@ -320,13 +347,27 @@ pub fn generate_airport_changes() {
     let mut pe_change = false;
     // let us_change = false;
 
+    let mut changes = AirportChanges {
+        opened: Vec::new(),
+        closed: Vec::new(),
+        renamed: Vec::new(),
+    };
+
     if let Ok(mut file) = File::create(path) {
         writeln!(file, "# **Airport changes effective  // CYCLE**").unwrap();
         writeln!(file, "## **PilotEdge Area Changes **").unwrap();
 
         for modified_airport in opened_airports {
             if states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
-                writeln!(file, "{} - {} // OPENED ({}, {})", modified_airport.new_airport.as_ref().unwrap().airport_id, modified_airport.new_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.as_ref().unwrap().city, modified_airport.new_airport.as_ref().unwrap().state_code).unwrap();
+                let a = modified_airport.new_airport.as_ref().unwrap();
+                writeln!(file, "{} - {} // OPENED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code).unwrap();
+                changes.opened.push(AirportEntry {
+                    airport_id: a.airport_id.clone(),
+                    airport_name: a.airport_name.clone(),
+                    city: a.city.clone(),
+                    state_code: a.state_code.clone(),
+                    state_name: a.state_name.clone(),
+                });
                 pe_change = true;
             }
         }
@@ -335,7 +376,15 @@ pub fn generate_airport_changes() {
 
         for modified_airport in closed_airports {
             if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
-                writeln!(file, "{} - {} // CLOSED ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
+                let a = modified_airport.current_airport.as_ref().unwrap();
+                writeln!(file, "{} - {} // CLOSED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code).unwrap();
+                changes.closed.push(AirportEntry {
+                    airport_id: a.airport_id.clone(),
+                    airport_name: a.airport_name.clone(),
+                    city: a.city.clone(),
+                    state_code: a.state_code.clone(),
+                    state_name: a.state_name.clone(),
+                });
                 pe_change = true;
             }
         }
@@ -344,7 +393,17 @@ pub fn generate_airport_changes() {
 
         for modified_airport in renamed_airports {
             if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
-                writeln!(file, "{} - {} // RENAMED {} ({}, {})", modified_airport.current_airport.as_ref().unwrap().airport_id, modified_airport.current_airport.as_ref().unwrap().airport_name, modified_airport.new_airport.unwrap().airport_name, modified_airport.current_airport.as_ref().unwrap().city, modified_airport.current_airport.as_ref().unwrap().state_code).unwrap();
+                let cur = modified_airport.current_airport.as_ref().unwrap();
+                let new = modified_airport.new_airport.as_ref().unwrap();
+                writeln!(file, "{} - {} // RENAMED {} ({}, {})", cur.airport_id, cur.airport_name, new.airport_name, cur.city, cur.state_code).unwrap();
+                changes.renamed.push(RenamedEntry {
+                    airport_id: cur.airport_id.clone(),
+                    old_name: cur.airport_name.clone(),
+                    new_name: new.airport_name.clone(),
+                    city: cur.city.clone(),
+                    state_code: cur.state_code.clone(),
+                    state_name: cur.state_name.clone(),
+                });
                 pe_change = true;
             }
         }
@@ -387,6 +446,12 @@ pub fn generate_airport_changes() {
     }
 
     println!("File outputted at {}", path);
+
+    let json_path = "data/output/changed_airports.json";
+    let json_data = serde_json::to_string_pretty(&changes).unwrap();
+    fs::write(json_path, json_data).unwrap();
+    println!("JSON file outputted at {}", json_path);
+
     thread::sleep(ONE_SECOND);
 }
 
