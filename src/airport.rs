@@ -358,7 +358,7 @@ pub fn generate_airport_changes() {
     println!("Renamed airports listed");
 
     // Outputting list
-    let path = "data/output/changed_airports.md";
+    let path = format!("data/output/airport/{}.md", &cycle);
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
 
     let mut changes = AirportChanges {
@@ -369,7 +369,7 @@ pub fn generate_airport_changes() {
         renamed: Vec::new(),
     };
 
-    if let Ok(mut file) = File::create(path) {
+    if let Ok(mut file) = File::create(&path) {
         writeln!(file, "# **Airport changes effective {} // CYCLE {} **", discord_timestamp, changes.cycle).unwrap();
 
         for modified_airport in opened_airports {
@@ -421,12 +421,12 @@ pub fn generate_airport_changes() {
         }
     }
 
-    println!("File outputted at {}", path);
+    println!("File outputted at {}", &path);
 
-    let json_path = "data/output/changed_airports.json";
+    let json_path = format!("data/output/airport/{}.json", changes.cycle);
     let json_data = serde_json::to_string_pretty(&changes).unwrap();
-    fs::write(json_path, json_data).unwrap();
-    println!("JSON file outputted at {}", json_path);
+    fs::write(&json_path, json_data).unwrap();
+    println!("JSON file outputted at {}", &json_path);
 
     thread::sleep(ONE_SECOND);
 }
