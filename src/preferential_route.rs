@@ -1,6 +1,8 @@
-use std::fs::File;
+use std::fs::{self, File};
 use std::path::Path;
 use std::{io::{self, BufRead, Write}, thread};
+use chrono::{NaiveDate, TimeZone, Utc};
+use serde::Serialize;
 use crate::{ONE_SECOND};
 
 const ROUTE_DATA_LOCATION: &str = "data/PFR_BASE.csv";
@@ -30,6 +32,33 @@ pub struct PreferentialRoute {
     route_string: String,
     route_notes: Option<String>,
     region: String,
+}
+
+#[derive(Serialize)]
+struct RouteEntry {
+    designator: String,
+    origin_id: String,
+    destination_id: String,
+}
+
+#[derive(Serialize)]
+struct ModifiedRouteEntry {
+    designator: String,
+    origin_id: String,
+    destination_id: String,
+    altitude_change: bool,
+    new_altitude: Option<String>,
+    route_change: bool,
+    new_route_string: Option<String>,
+}
+
+#[derive(Serialize)]
+struct RouteChanges {
+    cycle: String,
+    effective_date: String,
+    added: Vec<RouteEntry>,
+    removed: Vec<RouteEntry>,
+    modified: Vec<ModifiedRouteEntry>,
 }
 
 #[derive(Clone)]
@@ -187,6 +216,19 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
 }
 
 pub fn generate_tec_route_changes() {
+    print!("Enter cycle (e.g. 2510): ");
+    io::Write::flush(&mut io::stdout()).unwrap();
+    let mut cycle = String::new();
+    io::stdin().read_line(&mut cycle).unwrap();
+    let cycle = cycle.trim().to_string();
+
+    print!("Enter effective date (e.g. 2025-10-09): ");
+    io::Write::flush(&mut io::stdout()).unwrap();
+    let mut effective_date = String::new();
+    io::stdin().read_line(&mut effective_date).unwrap();
+    let effective_date = effective_date.trim().to_string();
+    let discord_ts = discord_timestamp(&effective_date).unwrap().to_string();
+
     let current_routes: Vec<PreferentialRoute> = read_tec_routes( false);
     let future_routes: Vec<PreferentialRoute> = read_tec_routes( true);
     let mut new_routes: Vec<ModifiedRoute> = Vec::new();
@@ -265,30 +307,65 @@ pub fn generate_tec_route_changes() {
     println!("Modified routes listed");
 
     // Outputting list
-    let path = "data/output/changed_tec_routes.txt";
+    let path = format!("data/output/pfr/{}.md", &cycle);
 
-    if let Ok(mut file) = File::create(path) {
-        writeln!(file, "# **TEC Route changes effective  // CYCLE**").unwrap();
+    let mut changes = RouteChanges {
+        cycle,
+        effective_date,
+        added: Vec::new(),
+        removed: Vec::new(),
+        modified: Vec::new(),
+    };
+
+    if let Ok(mut file) = File::create(&path) {
+        writeln!(file, "# **TEC Route changes effective {} // CYCLE {}**", discord_ts, changes.cycle).unwrap();
 
         for new_route in new_routes {
-            writeln!(file, "{} ({} -> {}) // ADDED", new_route.future_route.as_ref().unwrap().designator, new_route.future_route.as_ref().unwrap().origin_id, new_route.future_route.as_ref().unwrap().destination_id).unwrap();
+            let r = new_route.future_route.as_ref().unwrap();
+            writeln!(file, "{} ({} -> {}) // ADDED", r.designator, r.origin_id, r.destination_id).unwrap();
+            changes.added.push(RouteEntry {
+                designator: r.designator.clone(),
+                origin_id: r.origin_id.clone(),
+                destination_id: r.destination_id.clone(),
+            });
         }
 
         writeln!(file, " ").unwrap();
 
         for removed_route in removed_routes {
-            writeln!(file, "{} ({} -> {}) // REMOVED", removed_route.current_route.as_ref().unwrap().designator, removed_route.current_route.as_ref().unwrap().origin_id, removed_route.current_route.as_ref().unwrap().destination_id).unwrap();
+            let r = removed_route.current_route.as_ref().unwrap();
+            writeln!(file, "{} ({} -> {}) // REMOVED", r.designator, r.origin_id, r.destination_id).unwrap();
+            changes.removed.push(RouteEntry {
+                designator: r.designator.clone(),
+                origin_id: r.origin_id.clone(),
+                destination_id: r.destination_id.clone(),
+            });
         }
 
+        let mut seen_designators: Vec<String> = Vec::new();
         for modified_route in modified_routes.iter().cloned() {
-            if modified_route.altitude_change.unwrap() {
-                writeln!(file, "{} ({} -> {}) // ALTITUDE CHANGED `{}`", modified_route.future_route.as_ref().unwrap().designator, modified_route.future_route.as_ref().unwrap().origin_id, modified_route.future_route.as_ref().unwrap().destination_id, modified_route.future_route.as_ref().unwrap().altitude_description).unwrap();
+            let r = modified_route.future_route.as_ref().unwrap();
+            let altitude_change = modified_route.altitude_change.unwrap();
+            let route_change = modified_route.route_change.unwrap();
+
+            if altitude_change {
+                writeln!(file, "{} ({} -> {}) // ALTITUDE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.altitude_description).unwrap();
             }
-        }
+            if route_change {
+                writeln!(file, "{} ({} -> {}) // ROUTE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.route_string).unwrap();
+            }
 
-        for modified_route in modified_routes.iter().cloned() {
-            if modified_route.route_change.unwrap() {
-                writeln!(file, "{} ({} -> {}) // ROUTE CHANGED `{}`", modified_route.future_route.as_ref().unwrap().designator, modified_route.future_route.as_ref().unwrap().origin_id, modified_route.future_route.as_ref().unwrap().destination_id, modified_route.future_route.as_ref().unwrap().route_string).unwrap();
+            if !seen_designators.contains(&r.designator) {
+                seen_designators.push(r.designator.clone());
+                changes.modified.push(ModifiedRouteEntry {
+                    designator: r.designator.clone(),
+                    origin_id: r.origin_id.clone(),
+                    destination_id: r.destination_id.clone(),
+                    altitude_change,
+                    new_altitude: if altitude_change { Some(r.altitude_description.clone()) } else { None },
+                    route_change,
+                    new_route_string: if route_change { Some(r.route_string.clone()) } else { None },
+                });
             }
         }
 
@@ -297,8 +374,22 @@ pub fn generate_tec_route_changes() {
         }
     }
 
-    println!("File outputted at {}", path);
+    println!("File outputted at {}", &path);
+
+    let json_path = format!("data/output/pfr/{}.json", changes.cycle);
+    let json_data = serde_json::to_string_pretty(&changes).unwrap();
+    fs::write(&json_path, json_data).unwrap();
+    println!("JSON file outputted at {}", &json_path);
+
     thread::sleep(ONE_SECOND);
+}
+
+fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError> {
+    let date = NaiveDate::parse_from_str(effective_date, "%Y-%m-%d")?;
+    let datetime = date.and_hms_opt(9, 0, 0).expect("valid time");
+    let utc_datetime = Utc.from_utc_datetime(&datetime);
+
+    Ok(format!("<t:{}:R>", utc_datetime.timestamp()))
 }
 
 pub fn generate_mfr_tec_route_list() {

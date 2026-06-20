@@ -9,7 +9,7 @@ const ONE_SECOND:Duration = Duration::from_secs(1);
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 
 fn main() {
-    fs::create_dir_all("./data").expect("Failed to create data folder");
+    fs::create_dir_all("./data/output/pfr").expect("Failed to create data folder");
     fs::create_dir_all("./data/output/airport").expect("Failed to create output folder");
 
     main_menu();
