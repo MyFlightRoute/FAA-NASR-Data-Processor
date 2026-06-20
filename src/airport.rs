@@ -368,7 +368,7 @@ pub fn generate_airport_changes() {
     };
 
     if let Ok(mut file) = File::create(path) {
-        writeln!(file, "# **Airport changes effective  // CYCLE**").unwrap();
+        writeln!(file, "# **Airport changes effective  // CYCLE {} **", changes.cycle).unwrap();
 
         for modified_airport in opened_airports {
             if states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
