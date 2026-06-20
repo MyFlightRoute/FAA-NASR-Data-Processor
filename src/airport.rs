@@ -1,6 +1,7 @@
 use std::{path::Path, thread, io::{self, BufRead, Write}, fs};
 use std::fs::File;
 use serde::Serialize;
+use chrono::{NaiveDate, TimeZone, Utc};
 
 use crate::{airport, ONE_SECOND};
 
@@ -295,6 +296,7 @@ pub fn generate_airport_changes() {
     let mut effective_date = String::new();
     io::stdin().read_line(&mut effective_date).unwrap();
     let effective_date = effective_date.trim().to_string();
+    let discord_timestamp = discord_timestamp(&effective_date).unwrap().to_string();
 
     let current_airports: Vec<Airport> = airport::read_airports(false);
     let future_airports: Vec<Airport> = airport::read_airports(true);
@@ -356,7 +358,7 @@ pub fn generate_airport_changes() {
     println!("Renamed airports listed");
 
     // Outputting list
-    let path = "data/output/changed_airports.md";
+    let path = format!("data/output/airport/{}.txt", &cycle);
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
 
     let mut changes = AirportChanges {
@@ -367,8 +369,8 @@ pub fn generate_airport_changes() {
         renamed: Vec::new(),
     };
 
-    if let Ok(mut file) = File::create(path) {
-        writeln!(file, "# **Airport changes effective  // CYCLE**").unwrap();
+    if let Ok(mut file) = File::create(&path) {
+        writeln!(file, "# **Airport changes effective {} // CYCLE {} **", discord_timestamp, changes.cycle).unwrap();
 
         for modified_airport in opened_airports {
             if states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
@@ -419,12 +421,12 @@ pub fn generate_airport_changes() {
         }
     }
 
-    println!("File outputted at {}", path);
+    println!("File outputted at {}", &path);
 
-    let json_path = "data/output/changed_airports.json";
+    let json_path = format!("data/output/airport/{}.json", changes.cycle);
     let json_data = serde_json::to_string_pretty(&changes).unwrap();
-    fs::write(json_path, json_data).unwrap();
-    println!("JSON file outputted at {}", json_path);
+    fs::write(&json_path, json_data).unwrap();
+    println!("JSON file outputted at {}", &json_path);
 
     thread::sleep(ONE_SECOND);
 }
@@ -448,4 +450,12 @@ pub fn export_airport_list() {
 
     println!("Airports exported.");
     thread::sleep(ONE_SECOND);
+}
+
+fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError> {
+    let date = NaiveDate::parse_from_str(effective_date, "%Y-%m-%d")?;
+    let datetime = date.and_hms_opt(9, 0, 0).expect("valid time");
+    let utc_datetime = Utc.from_utc_datetime(&datetime);
+
+    Ok(format!("<t:{}:R>", utc_datetime.timestamp()))
 }
