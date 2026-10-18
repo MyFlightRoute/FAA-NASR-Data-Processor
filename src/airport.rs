@@ -285,19 +285,19 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
     airport_list
 }
 
-pub fn generate_airport_changes() {
+pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
     print!("Enter cycle (e.g. 2510): ");
-    io::Write::flush(&mut io::stdout()).unwrap();
+    io::Write::flush(&mut io::stdout())?;
     let mut cycle = String::new();
-    io::stdin().read_line(&mut cycle).unwrap();
+    io::stdin().read_line(&mut cycle)?;
     let cycle = cycle.trim().to_string();
 
     print!("Enter effective date (e.g. 2025-10-09): ");
-    io::Write::flush(&mut io::stdout()).unwrap();
+    io::Write::flush(&mut io::stdout())?;
     let mut effective_date = String::new();
-    io::stdin().read_line(&mut effective_date).unwrap();
+    io::stdin().read_line(&mut effective_date)?;
     let effective_date = effective_date.trim().to_string();
-    let discord_timestamp = discord_timestamp(&effective_date).unwrap().to_string();
+    let discord_timestamp = discord_timestamp(&effective_date)?.to_string();
 
     let current_airports: Vec<Airport> = airport::read_airports(false);
     let future_airports: Vec<Airport> = airport::read_airports(true);
@@ -371,12 +371,12 @@ pub fn generate_airport_changes() {
     };
 
     if let Ok(mut file) = File::create(&path) {
-        writeln!(file, "# **Airport changes effective {} // CYCLE {} **", discord_timestamp, changes.cycle).unwrap();
+        writeln!(file, "# **Airport changes effective {} // CYCLE {} **", discord_timestamp, changes.cycle)?;
 
         for modified_airport in opened_airports {
             if states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
                 let a = modified_airport.new_airport.as_ref().unwrap();
-                writeln!(file, "{} - {} // OPENED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code).unwrap();
+                writeln!(file, "{} - {} // OPENED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code)?;
                 changes.opened.push(AirportEntry {
                     airport_id: a.airport_id.clone(),
                     airport_name: a.airport_name.clone(),
@@ -387,12 +387,12 @@ pub fn generate_airport_changes() {
             }
         }
 
-        writeln!(file, " ").unwrap();
+        writeln!(file, " ")?;
 
         for modified_airport in closed_airports {
             if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
                 let a = modified_airport.current_airport.as_ref().unwrap();
-                writeln!(file, "{} - {} // CLOSED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code).unwrap();
+                writeln!(file, "{} - {} // CLOSED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code)?;
                 changes.closed.push(AirportEntry {
                     airport_id: a.airport_id.clone(),
                     airport_name: a.airport_name.clone(),
@@ -430,9 +430,11 @@ pub fn generate_airport_changes() {
     println!("JSON file outputted at {json_path}");
 
     thread::sleep(ONE_SECOND);
+
+    Ok(())
 }
 
-pub fn export_airport_list() {
+pub fn export_airport_list() -> Result<(), Box<dyn std::error::Error>> {
     let airports: Vec<Airport> = read_airports(false);
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
     let path = "data/output/airports.csv";
@@ -443,7 +445,7 @@ pub fn export_airport_list() {
 
         for airport in airports {
             if states.contains(&&*airport.state_name) {
-                writeln!(file, "{},{},{},tbc,tbc,tbc,tbc,tbc,tbc,tbc,tbc,{},{},tbc,{},{},{},{},false,{},{},{},{},{},,{}", i, airport.airport_id, airport.airport_name, airport.elevation, airport.tpa, airport.ownership_type_code, airport.facility_use_code, airport.latitude_decimal, airport.longitude_decimal, airport.artcc_name, airport.county_name, airport.city, airport.state_code, airport.state_name, airport.icao_id).unwrap();
+                writeln!(file, "{},{},{},tbc,tbc,tbc,tbc,tbc,tbc,tbc,tbc,{},{},tbc,{},{},{},{},false,{},{},{},{},{},,{}", i, airport.airport_id, airport.airport_name, airport.elevation, airport.tpa, airport.ownership_type_code, airport.facility_use_code, airport.latitude_decimal, airport.longitude_decimal, airport.artcc_name, airport.county_name, airport.city, airport.state_code, airport.state_name, airport.icao_id)?;
                 i.checked_add(1).expect("Airport counter overflowed");
             }
         }
@@ -451,6 +453,8 @@ pub fn export_airport_list() {
 
     println!("Airports exported.");
     thread::sleep(ONE_SECOND);
+
+    Ok(())
 }
 
 fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError> {

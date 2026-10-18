@@ -27,8 +27,8 @@ fn main() {
         match menu.prompt() {
             Ok(tuple) => match tuple {
                 (0, 0) => std::process::exit(0), // Quit option
-                (1, 1) => airport::export_airport_list(),
-                (1, 2) => airport::generate_airport_changes(),
+                (1, 1) => airport::export_airport_list().expect("Failed to export airport list"),
+                (1, 2) => airport::generate_airport_changes().expect("Failed to generate Airport changes"),
                 (1, 3) => preferential_route::generate_tec_route_changes().expect("Failed to generate TEC route changes"),
                 (1, 4) => preferential_route::generate_mfr_tec_route_list().expect("Failed to generate TEC route list"),
                 _ => (),
