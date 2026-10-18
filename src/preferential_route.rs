@@ -307,7 +307,7 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
     println!("Modified routes listed");
 
     // Outputting list
-    let path = format!("data/output/pfr/{}.txt", &cycle);
+    let path = format!("data/output/pfr/{}.txt", cycle);
 
     let mut changes = RouteChanges {
         cycle,
