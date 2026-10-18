@@ -297,7 +297,7 @@ pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
     let mut effective_date = String::new();
     io::stdin().read_line(&mut effective_date)?;
     let effective_date = effective_date.trim().to_string();
-    let discord_timestamp = discord_timestamp(&effective_date)?.to_string();
+    let discord_timestamp = discord_timestamp(&effective_date)?;
 
     let current_airports: Vec<Airport> = airport::read_airports(false)?;
     let future_airports: Vec<Airport> = airport::read_airports(true)?;

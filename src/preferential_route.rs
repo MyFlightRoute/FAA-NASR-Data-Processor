@@ -227,7 +227,7 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
     let mut effective_date = String::new();
     io::stdin().read_line(&mut effective_date)?;
     let effective_date = effective_date.trim().to_string();
-    let discord_ts = discord_timestamp(&effective_date)?.to_string();
+    let discord_ts = discord_timestamp(&effective_date)?;
 
     let current_routes: Vec<PreferentialRoute> = read_tec_routes( false).expect("Failed to read TEC routes");
     let future_routes: Vec<PreferentialRoute> = read_tec_routes( true).expect("Failed to read future TEC routes");
