@@ -4,6 +4,7 @@ use ts_lib::clear_console;
 
 pub mod airport;
 pub mod preferential_route;
+mod util;
 
 const ONE_SECOND:Duration = Duration::from_secs(1);
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
@@ -12,10 +13,6 @@ fn main() {
     fs::create_dir_all("./data/output/pfr").expect("Failed to create data folder");
     fs::create_dir_all("./data/output/airport").expect("Failed to create output folder");
 
-    main_menu();
-}
-
-fn main_menu() {
     let mut menu = MenuBuilder::new()
         .with_menu(1)
         .with_menu_item("Export airport list", MenuAction::Nothing)
@@ -31,10 +28,10 @@ fn main_menu() {
         match menu.prompt() {
             Ok(tuple) => match tuple {
                 (0, 0) => std::process::exit(0), // Quit option
-                (1, 1) => airport::export_airport_list(),
-                (1, 2) => airport::generate_airport_changes(),
-                (1, 3) => preferential_route::generate_tec_route_changes(),
-                (1, 4) => preferential_route::generate_mfr_tec_route_list(),
+                (1, 1) => airport::export_airport_list().expect("Failed to export airport list"),
+                (1, 2) => airport::generate_airport_changes().expect("Failed to generate Airport changes"),
+                (1, 3) => preferential_route::generate_tec_route_changes().expect("Failed to generate TEC route changes"),
+                (1, 4) => preferential_route::generate_mfr_tec_route_list().expect("Failed to generate TEC route list"),
                 _ => (),
             },
 
@@ -45,6 +42,6 @@ fn main_menu() {
                     _ => (),
                 }
             }
-        } 
+        }
     }
 }

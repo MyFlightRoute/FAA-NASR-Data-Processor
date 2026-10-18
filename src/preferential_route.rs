@@ -1,9 +1,8 @@
 use std::fs::{self, File};
 use std::path::Path;
 use std::{io::{self, BufRead, Write}, thread};
-use chrono::{NaiveDate, TimeZone, Utc};
 use serde::Serialize;
-use crate::{ONE_SECOND};
+use crate::{ONE_SECOND, util::discord_timestamp};
 
 const ROUTE_DATA_LOCATION: &str = "data/PFR_BASE.csv";
 const ROUTE_FUTURE_DATA_LOCATION: &str = "data/PFR_BASE_NEW.csv";
@@ -69,11 +68,11 @@ struct ModifiedRoute {
     route_change: Option<bool>
 }
 
-fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
-    let path = if !future_data {
-        ROUTE_DATA_LOCATION
-    } else {
+fn read_tec_routes(future_data: bool) -> Result<Vec<PreferentialRoute>, Box<dyn std::error::Error>> {
+    let path = if future_data {
         ROUTE_FUTURE_DATA_LOCATION
+    } else {
+        ROUTE_DATA_LOCATION
     };
 
     let mut route_list: Vec<PreferentialRoute> = Vec::new();
@@ -83,154 +82,153 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
 
         thread::sleep(ONE_SECOND);
 
-        return route_list;
+        return Err("TEC Route CSV file missing".into());
     } else if future_data && !Path::new(path).exists() {
         println!("Please download the upcoming changes and put it in the data folder as APT_BASE_NEW.csv, and restart the function.");
 
         thread::sleep(ONE_SECOND);
 
-        return route_list;
+        return Err("Upcoming changes TEC Route CSV missing".into());
     }
 
-    // Attempt to open the file
     let file =  File::open(path).expect("File failed to open");
 
-    // Create a buffered reader to efficiently read the file line by line
     let reader = io::BufReader::new(file);
 
-    // Iterate over each line in the file
     for line in reader.lines() {
-        let norcal_tec_route_ids: Vec<&str> = vec!["SJC", "MOD", "SQL", "MHR", "HWD", "LVK", "MRY", "NUQ", "OAK", "SAC", "SCK", "SFO"];
-        // Check if reading the line was successful
-        let clean_line = line.unwrap().replace('"', "");
+        let clean_line = line?.replace('"', "");
 
-        // Split the line by commas and collect the values into a vector
         let split_data: Vec<&str> = clean_line.split(',').collect();
 
-        // Print the vector of values for the current line
-        //println!("{:?}", split_data);
-
-        // If the line is a valid TEC Route data block, create a TEC Route
-        if split_data[9] == "TEC" {
+        if split_data.get(9) == Some(&"TEC") {
             // Check the TEC Route is a Californian TEC Route
-            if split_data[3] == "CA" && split_data[7] == "CA" { 
-                let mut new_tec_route = PreferentialRoute {
-                    origin_id: split_data[1].to_string(),
-                    origin_city: split_data[2].to_string(),
-                    origin_state_code: split_data[3].to_string(),
-                    origin_country_code: split_data[4].to_string(),
-                    destination_id: split_data[5].to_string(),
-                    destination_city: split_data[6].to_string(),
-                    destination_state_code: split_data[7].to_string(),
-                    destination_country_code: split_data[8].to_string(),
-                    pfr_type_code: split_data[9].to_string(),
-                    route_number: split_data[10].to_string(),
-                    special_area_description: split_data[11].to_string(),
-                    altitude_description: split_data[12].to_string(),
-                    aircraft: split_data[13].to_string(),
-                    hours: split_data[14].to_string(),
-                    route_dir_description: split_data[15].to_string(),
-                    designator: split_data[16].to_string(),
-                    nar_type: split_data[17].to_string(),
-                    inland_fac_fix: split_data[18].to_string(),
-                    coastal_fix: split_data[19].to_string(),
-                    destination: split_data[20].to_string(),
-                    route_string: split_data[21].to_string(),
-                    route_notes: None,
-                    region: String::from("TBC")
-                };
-
-                if new_tec_route.route_string.is_empty() {
-                    new_tec_route.route_string = String::from("DCT");
-                }
-
-                for route_id in norcal_tec_route_ids {
-                    if new_tec_route.designator[0..3] == String::from(route_id) {
-                        new_tec_route.region = String::from("NorCal");
-                        break;
-                    } else {
-                        new_tec_route.region = String::from("SoCal");
-                    }
-                }
-
-                if new_tec_route.region == "NorCal" {
-                    let split_description: Vec<&str> = new_tec_route.special_area_description.split(" TO ").collect();
-                    let split_departures: Vec<&str> = split_description[0].split(' ').collect();
-                    let split_arrivals: Vec<&str> = split_description[1].split(' ').collect();
-                    let base_route: PreferentialRoute = new_tec_route.clone();
-
-                    for departure in split_departures.clone() {
-                        for arrival in split_arrivals.clone() {
-                            let new_sub_route: PreferentialRoute = PreferentialRoute {
-                                origin_id: String::from(departure),
-                                origin_city: "".to_string(),
-                                origin_state_code: "".to_string(),
-                                origin_country_code: "".to_string(),
-                                destination_id: String::from(arrival),
-                                destination_city: "".to_string(),
-                                destination_state_code: "".to_string(),
-                                destination_country_code: "".to_string(),
-                                pfr_type_code: base_route.clone().pfr_type_code,
-                                route_number: base_route.clone().route_number,
-                                special_area_description: base_route.clone().special_area_description,
-                                altitude_description: base_route.clone().altitude_description,
-                                aircraft: base_route.clone().aircraft,
-                                hours: base_route.clone().hours,
-                                route_dir_description: base_route.clone().route_dir_description,
-                                designator: base_route.clone().designator,
-                                nar_type: base_route.clone().nar_type,
-                                inland_fac_fix: base_route.clone().inland_fac_fix,
-                                coastal_fix: base_route.clone().coastal_fix,
-                                destination: base_route.clone().destination,
-                                route_string: base_route.clone().route_string,
-                                route_notes: None,
-                                region: base_route.clone().region,
-                            };
-
-                            route_list.push(new_sub_route);
-                        }
-                    }
-                }
-
-                if new_tec_route.special_area_description.contains("LAXE") {
-                    new_tec_route.route_notes = Option::from(String::from("LAX EAST"));
-                } else if new_tec_route.special_area_description.contains("LAXW") {
-                    new_tec_route.route_notes = Option::from(String::from("LAX WEST"));
-                } else if new_tec_route.special_area_description.contains("SANE") {
-                    new_tec_route.route_notes = Option::from(String::from("SAN EAST"));
-                }
-
-                if new_tec_route.route_dir_description == "SFOW" {
-                    new_tec_route.route_notes = Option::from(String::from("SFO West"));
-                } else if new_tec_route.route_dir_description == "SFOE" {
-                    new_tec_route.route_notes = Option::from(String::from("SFO East"));
-                }
-                
-                route_list.push(new_tec_route);
+            if split_data.get(3) == Some(&"CA") && split_data.get(7) == Some(&"CA") {
+                route_list.extend(process_tec_route(split_data)?);
             }
         }
     }
 
     println!("TEC Routes read.");
-    route_list
+    Ok(route_list)
 }
 
-pub fn generate_tec_route_changes() {
+fn process_tec_route(raw_data: Vec<&str>) -> Result<Vec<PreferentialRoute>, Box<dyn std::error::Error>> {
+    let norcal_tec_route_ids: Vec<&str> = vec!["SJC", "MOD", "SQL", "MHR", "HWD", "LVK", "MRY", "NUQ", "OAK", "SAC", "SCK", "SFO"];
+    let mut route_list = Vec::<PreferentialRoute>::new();
+
+    let mut new_tec_route = PreferentialRoute {
+        origin_id: raw_data.get(1).expect("No value").to_string(),
+        origin_city: raw_data.get(2).expect("No value").to_string(),
+        origin_state_code: raw_data.get(3).expect("No value").to_string(),
+        origin_country_code: raw_data.get(4).expect("No value").to_string(),
+        destination_id: raw_data.get(5).expect("No value").to_string(),
+        destination_city: raw_data.get(6).expect("No value").to_string(),
+        destination_state_code: raw_data.get(7).expect("No value").to_string(),
+        destination_country_code: raw_data.get(8).expect("No value").to_string(),
+        pfr_type_code: raw_data.get(9).expect("No value").to_string(),
+        route_number: raw_data.get(10).expect("No value").to_string(),
+        special_area_description: raw_data.get(11).expect("No value").to_string(),
+        altitude_description: raw_data.get(12).expect("No value").to_string(),
+        aircraft: raw_data.get(13).expect("No value").to_string(),
+        hours: raw_data.get(14).expect("No value").to_string(),
+        route_dir_description: raw_data.get(15).expect("No value").to_string(),
+        designator: raw_data.get(16).expect("No value").to_string(),
+        nar_type: raw_data.get(17).expect("No value").to_string(),
+        inland_fac_fix: raw_data.get(18).expect("No value").to_string(),
+        coastal_fix: raw_data.get(19).expect("No value").to_string(),
+        destination: raw_data.get(20).expect("No value").to_string(),
+        route_string: raw_data.get(21).expect("No value").to_string(),
+        route_notes: None,
+        region: String::from("TBC")
+    };
+
+    if new_tec_route.route_string.is_empty() {
+        new_tec_route.route_string = String::from("DCT");
+    }
+
+    for route_id in norcal_tec_route_ids {
+        if new_tec_route.designator.starts_with(route_id) {
+            new_tec_route.region = String::from("NorCal");
+            break;
+        }
+
+        new_tec_route.region = String::from("SoCal");
+    }
+
+    if new_tec_route.region == "NorCal" {
+        let split_description: Vec<&str> = new_tec_route.special_area_description.split(" TO ").collect();
+        let split_departures: Vec<&str> = split_description.first().expect("Departures not defined").split(' ').collect();
+        let split_arrivals: Vec<&str> = split_description.get(1).expect("Arrivals not defined").split(' ').collect();
+        let base_route: PreferentialRoute = new_tec_route.clone();
+
+        for departure in split_departures.clone() {
+            for arrival in split_arrivals.clone() {
+                let new_sub_route: PreferentialRoute = PreferentialRoute {
+                    origin_id: String::from(departure),
+                    origin_city: String::new(),
+                    origin_state_code: String::new(),
+                    origin_country_code: String::new(),
+                    destination_id: String::from(arrival),
+                    destination_city: String::new(),
+                    destination_state_code: String::new(),
+                    destination_country_code: String::new(),
+                    pfr_type_code: base_route.clone().pfr_type_code,
+                    route_number: base_route.clone().route_number,
+                    special_area_description: base_route.clone().special_area_description,
+                    altitude_description: base_route.clone().altitude_description,
+                    aircraft: base_route.clone().aircraft,
+                    hours: base_route.clone().hours,
+                    route_dir_description: base_route.clone().route_dir_description,
+                    designator: base_route.clone().designator,
+                    nar_type: base_route.clone().nar_type,
+                    inland_fac_fix: base_route.clone().inland_fac_fix,
+                    coastal_fix: base_route.clone().coastal_fix,
+                    destination: base_route.clone().destination,
+                    route_string: base_route.clone().route_string,
+                    route_notes: None,
+                    region: base_route.clone().region,
+                };
+
+                route_list.push(new_sub_route);
+            }
+        }
+    }
+
+    if new_tec_route.special_area_description.contains("LAXE") {
+        new_tec_route.route_notes = Option::from(String::from("LAX EAST"));
+    } else if new_tec_route.special_area_description.contains("LAXW") {
+        new_tec_route.route_notes = Option::from(String::from("LAX WEST"));
+    } else if new_tec_route.special_area_description.contains("SANE") {
+        new_tec_route.route_notes = Option::from(String::from("SAN EAST"));
+    }
+
+    if new_tec_route.route_dir_description == "SFOW" {
+        new_tec_route.route_notes = Option::from(String::from("SFO West"));
+    } else if new_tec_route.route_dir_description == "SFOE" {
+        new_tec_route.route_notes = Option::from(String::from("SFO East"));
+    }
+
+    route_list.push(new_tec_route);
+
+    Ok(route_list)
+}
+
+pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
     print!("Enter cycle (e.g. 2510): ");
-    io::Write::flush(&mut io::stdout()).unwrap();
+    io::Write::flush(&mut io::stdout())?;
     let mut cycle = String::new();
-    io::stdin().read_line(&mut cycle).unwrap();
+    io::stdin().read_line(&mut cycle)?;
     let cycle = cycle.trim().to_string();
 
     print!("Enter effective date (e.g. 2025-10-09): ");
-    io::Write::flush(&mut io::stdout()).unwrap();
+    io::Write::flush(&mut io::stdout())?;
     let mut effective_date = String::new();
-    io::stdin().read_line(&mut effective_date).unwrap();
+    io::stdin().read_line(&mut effective_date)?;
     let effective_date = effective_date.trim().to_string();
-    let discord_ts = discord_timestamp(&effective_date).unwrap().to_string();
+    let discord_ts = discord_timestamp(&effective_date)?;
 
-    let current_routes: Vec<PreferentialRoute> = read_tec_routes( false);
-    let future_routes: Vec<PreferentialRoute> = read_tec_routes( true);
+    let current_routes: Vec<PreferentialRoute> = read_tec_routes( false).expect("Failed to read TEC routes");
+    let future_routes: Vec<PreferentialRoute> = read_tec_routes( true).expect("Failed to read future TEC routes");
     let mut new_routes: Vec<ModifiedRoute> = Vec::new();
     let mut removed_routes: Vec<ModifiedRoute> = Vec::new();
     let mut modified_routes: Vec<ModifiedRoute> = Vec::new();
@@ -285,10 +283,10 @@ pub fn generate_tec_route_changes() {
                     x.destination_id == current_route_loop.destination_id
             );
 
-            let altitude_change: bool = current_route_loop.altitude_description != new_route.as_ref().unwrap().altitude_description;
-            let route_change: bool = current_route_loop.route_string != new_route.as_ref().unwrap().route_string;
-            let route_number_matches: bool = current_route_loop.route_number == new_route.as_ref().unwrap().route_number;
-            let route_description_matches: bool = current_route_loop.special_area_description == new_route.as_ref().unwrap().special_area_description;
+            let altitude_change: bool = current_route_loop.altitude_description != new_route.as_ref().expect("Altitude not defined in new route").altitude_description;
+            let route_change: bool = current_route_loop.route_string != new_route.as_ref().expect("Route string not defined in new route").route_string;
+            let route_number_matches: bool = current_route_loop.route_number == new_route.as_ref().expect("Route number not defined in new route").route_number;
+            let route_description_matches: bool = current_route_loop.special_area_description == new_route.as_ref().expect("Special Area Description not defined in new route").special_area_description;
 
             if (route_change || altitude_change) && route_number_matches && route_description_matches {
                 let modified_route: ModifiedRoute = ModifiedRoute {
@@ -307,7 +305,7 @@ pub fn generate_tec_route_changes() {
     println!("Modified routes listed");
 
     // Outputting list
-    let path = format!("data/output/pfr/{}.txt", &cycle);
+    let path = format!("data/output/pfr/{cycle}.txt");
 
     let mut changes = RouteChanges {
         cycle,
@@ -318,11 +316,11 @@ pub fn generate_tec_route_changes() {
     };
 
     if let Ok(mut file) = File::create(&path) {
-        writeln!(file, "# **TEC Route changes effective {} // CYCLE {}**", discord_ts, changes.cycle).unwrap();
+        writeln!(file, "# **TEC Route changes effective {} // CYCLE {}**", discord_ts, changes.cycle)?;
 
         for new_route in new_routes {
-            let r = new_route.future_route.as_ref().unwrap();
-            writeln!(file, "{} ({} -> {}) // ADDED", r.designator, r.origin_id, r.destination_id).unwrap();
+            let r = new_route.future_route.as_ref().expect("Route not defined");
+            writeln!(file, "{} ({} -> {}) // ADDED", r.designator, r.origin_id, r.destination_id)?;
             changes.added.push(RouteEntry {
                 designator: r.designator.clone(),
                 origin_id: r.origin_id.clone(),
@@ -330,11 +328,11 @@ pub fn generate_tec_route_changes() {
             });
         }
 
-        writeln!(file, " ").unwrap();
+        writeln!(file, " ")?;
 
         for removed_route in removed_routes {
-            let r = removed_route.current_route.as_ref().unwrap();
-            writeln!(file, "{} ({} -> {}) // REMOVED", r.designator, r.origin_id, r.destination_id).unwrap();
+            let r = removed_route.current_route.as_ref().expect("Route not defined");
+            writeln!(file, "{} ({} -> {}) // REMOVED", r.designator, r.origin_id, r.destination_id)?;
             changes.removed.push(RouteEntry {
                 designator: r.designator.clone(),
                 origin_id: r.origin_id.clone(),
@@ -344,15 +342,15 @@ pub fn generate_tec_route_changes() {
 
         let mut seen_designators: Vec<String> = Vec::new();
         for modified_route in modified_routes.iter().cloned() {
-            let r = modified_route.future_route.as_ref().unwrap();
-            let altitude_change = modified_route.altitude_change.unwrap();
-            let route_change = modified_route.route_change.unwrap();
+            let r = modified_route.future_route.as_ref().expect("Route not defined");
+            let altitude_change = modified_route.altitude_change.unwrap_or(false);
+            let route_change = modified_route.route_change.unwrap_or(false);
 
             if altitude_change {
-                writeln!(file, "{} ({} -> {}) // ALTITUDE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.altitude_description).unwrap();
+                writeln!(file, "{} ({} -> {}) // ALTITUDE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.altitude_description)?;
             }
             if route_change {
-                writeln!(file, "{} ({} -> {}) // ROUTE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.route_string).unwrap();
+                writeln!(file, "{} ({} -> {}) // ROUTE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.route_string)?;
             }
 
             if !seen_designators.contains(&r.designator) {
@@ -370,39 +368,35 @@ pub fn generate_tec_route_changes() {
         }
 
         if !routes_have_changed {
-            writeln!(file, "** NO ROUTE CHANGES **").unwrap();
+            writeln!(file, "** NO ROUTE CHANGES **")?;
         }
     }
 
-    println!("File outputted at {}", &path);
+    println!("File outputted at {path}");
 
     let json_path = format!("data/output/pfr/{}.json", changes.cycle);
-    let json_data = serde_json::to_string_pretty(&changes).unwrap();
-    fs::write(&json_path, json_data).unwrap();
-    println!("JSON file outputted at {}", &json_path);
+    let json_data = serde_json::to_string_pretty(&changes).expect("Failed to serialize changes");
+    fs::write(&json_path, json_data).expect("Unable to write TEC route changes JSON");
+    println!("JSON file outputted at {json_path}");
 
     thread::sleep(ONE_SECOND);
+
+    Ok(())
 }
 
-fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError> {
-    let date = NaiveDate::parse_from_str(effective_date, "%Y-%m-%d")?;
-    let datetime = date.and_hms_opt(9, 0, 0).expect("valid time");
-    let utc_datetime = Utc.from_utc_datetime(&datetime);
-
-    Ok(format!("<t:{}:R>", utc_datetime.timestamp()))
-}
-
-pub fn generate_mfr_tec_route_list() {
-    let tec_routes: Vec<PreferentialRoute> = read_tec_routes(false);
+pub fn generate_mfr_tec_route_list() -> Result<(), Box<dyn std::error::Error>> {
+    let tec_routes: Vec<PreferentialRoute> = read_tec_routes(false).expect("Failed to read TEC Routes");
     let path: &str = "data/output/tec_routes.csv";
 
     if let Ok(mut file) = File::create(path) {
         // writeln!(file, "id,route_designator,origin_id,destination_id,altitude,aircraft,route_string,route_notes,created_at,updated_at").unwrap();
 
         for tec_route in tec_routes {
-            writeln!(file, ",{},{},{},{},{},{},{},{},,", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::from("")), tec_route.region).unwrap();
+            writeln!(file, ",{},{},{},{},{},{},{},{},,", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::new()), tec_route.region).expect("Unable to write TEC Route line");
         }
     } else {
         println!("Failed to create file.");
     }
+
+    Ok(())
 }

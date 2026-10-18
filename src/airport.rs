@@ -1,13 +1,13 @@
 use std::{path::Path, thread, io::{self, BufRead, Write}, fs};
 use std::fs::File;
 use serde::Serialize;
-use chrono::{NaiveDate, TimeZone, Utc};
 
-use crate::{airport, ONE_SECOND};
+use crate::{airport, ONE_SECOND, util::discord_timestamp};
 
 const AIRPORT_DATA_LOCATION: &str = "data/APT_BASE.csv";
 const PREVIEW_AIRPORT_DATA_LOCATION: &str = "data/APT_BASE_NEW.csv";
 
+#[expect(clippy::struct_field_names, reason = "fields mirror FAA CSV columns")]
 #[derive(PartialEq, Clone)]
 pub struct Airport {
     site_number: String,
@@ -134,11 +134,11 @@ struct AirportChanges {
     renamed: Vec<RenamedEntry>,
 }
 
-pub fn read_airports(future_data: bool) -> Vec<Airport> {
-    let path = if !future_data {
-        AIRPORT_DATA_LOCATION
-    } else {
+pub fn read_airports(future_data: bool) -> Result<Vec<Airport>, Box<dyn std::error::Error>> {
+    let path = if future_data {
         PREVIEW_AIRPORT_DATA_LOCATION
+    } else {
+        AIRPORT_DATA_LOCATION
     };
 
     let mut airport_list: Vec<Airport> = Vec::new();
@@ -148,13 +148,13 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
 
         thread::sleep(ONE_SECOND);
 
-        return airport_list;
+        return Err("APT Base missing".into())
     } else if future_data && !Path::new(PREVIEW_AIRPORT_DATA_LOCATION).exists() {
         println!("Please download the upcoming changes and put it in the data folder as APT_BASE_NEW.csv, and restart the function.");
 
         thread::sleep(ONE_SECOND);
 
-        return airport_list;
+        return Err("New APT Base missing".into())
     }
 
     // Attempt to open the file
@@ -167,7 +167,7 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
     for line in reader.lines() {
         // Check if reading the line was successful
 
-        let clean_line = line.unwrap().replace('"', "");
+        let clean_line = line?.replace('"', "");
 
         // Split the line by commas and collect the values into a vector
         let split_data: Vec<&str> = clean_line.split(',').collect();
@@ -176,97 +176,97 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
         //println!("{:?}", split_data);
 
         // If the line is a valid airport data block, create an airport
-        if split_data[0] != "EFF_DATE" {
+        if split_data.first() != Some(&"EFF_DATE") {
             let mut new_airport = Airport {
-                site_number: split_data[1].to_string(),
-                site_type_code: split_data[2].to_string(),
-                state_code: split_data[3].to_string(),
-                airport_id: split_data[4].to_string(),
-                city: split_data[5].to_string(),
-                country_code: split_data[6].to_string(),
-                region_code: split_data[7].to_string(),
-                ado_code: split_data[8].to_string(),
-                state_name: split_data[9].to_string(),
-                county_name: split_data[10].to_string(),
-                county_associated_state: split_data[11].to_string(),
-                airport_name: split_data[12].to_string(),
-                ownership_type_code: split_data[13].to_string(),
-                facility_use_code: split_data[14].to_string(),
-                latitude_degree: split_data[15].to_string(),
-                latitude_minutes: split_data[16].to_string(),
-                latitude_seconds: split_data[17].to_string(),
-                latitude_hemisphere: split_data[18].to_string(),
-                latitude_decimal: split_data[19].to_string(),
-                longitude_degree: split_data[20].to_string(),
-                longitude_minutes: split_data[21].to_string(),
-                longitude_seconds: split_data[22].to_string(),
-                longitude_hemisphere: split_data[23].to_string(),
-                longitude_decimal: split_data[24].to_string(),
-                survey_method_code: split_data[25].to_string(),
-                elevation: split_data[26].to_string(),
-                elevation_method_code: split_data[27].to_string(),
-                magnetic_variation: split_data[28].to_string(),
-                magnetic_hemisphere: split_data[29].to_string(),
-                magnetic_variation_year: split_data[30].to_string(),
-                tpa: split_data[31].to_string(),
-                chart_name: split_data[32].to_string(),
-                distance_city_to_airport: split_data[33].to_string(),
-                direction_code: split_data[34].to_string(),
-                acreage: split_data[35].to_string(),
-                resp_artcc_id: split_data[36].to_string(),
-                computer_id: split_data[37].to_string(),
-                artcc_name: split_data[38].to_string(),
-                fss_on_airport_flag: split_data[39].to_string(),
-                fss_id: split_data[40].to_string(),
-                fss_name: split_data[41].to_string(),
-                phone_number: split_data[42].to_string(),
-                toll_free_number: split_data[43].to_string(),
-                alt_fss_id: split_data[44].to_string(),
-                alt_fss_name: split_data[45].to_string(),
-                alt_toll_free_number: split_data[46].to_string(),
-                notam_id: split_data[47].to_string(),
-                notam_flag: split_data[48].to_string(),
-                activation_date: split_data[49].to_string(),
-                airport_status: split_data[50].to_string(),
-                far_139_type_code: split_data[51].to_string(),
-                far_139_carrier_ser_code: split_data[52].to_string(),
-                arff_cert_type_date: split_data[53].to_string(),
-                nasp_code: split_data[54].to_string(),
-                asp_analysis_dtrm_code: split_data[55].to_string(),
-                custom_flag: split_data[56].to_string(),
-                landing_flights_flag: split_data[57].to_string(),
-                joint_use_flag: split_data[58].to_string(),
-                military_landing_flag: split_data[59].to_string(),
-                inspect_method_code: split_data[60].to_string(),
-                inspector_code: split_data[61].to_string(),
-                last_inspection: split_data[62].to_string(),
-                last_information_response: split_data[63].to_string(),
-                fuel_types: split_data[64].to_string(),
-                airframe_repair_service_code: split_data[65].to_string(),
-                powerplant_repair_service: split_data[66].to_string(),
-                bottled_oxygen_type: split_data[67].to_string(),
-                bulk_oxygen_type: split_data[68].to_string(),
-                lighting_schedule: split_data[69].to_string(),
-                beacon_light_schedule: split_data[70].to_string(),
-                tower_type_code: split_data[71].to_string(),
-                segment_circle_marker_flag: split_data[72].to_string(),
-                beacon_lens_color: split_data[73].to_string(),
-                landing_fee_flag: split_data[74].to_string(),
-                medical_use_flag: split_data[75].to_string(),
-                airport_position_source: split_data[76].to_string(),
-                airport_position_source_date: split_data[77].to_string(),
-                airport_elevation_source: split_data[78].to_string(),
-                airport_elevation_source_date: split_data[79].to_string(),
-                contr_fuel_available: split_data[80].to_string(),
-                trns_strg_buoy_flag: split_data[81].to_string(),
-                trns_strg_hgr_flag: split_data[82].to_string(),
-                trns_strg_tie_flag: split_data[83].to_string(),
-                other_services: split_data[84].to_string(),
-                wind_indicator_flag: split_data[85].to_string(),
-                icao_id: split_data[86].to_string(),
-                min_op_network: split_data[87].to_string(),
-                user_fee_flag: split_data[88].to_string(),
-                cta: split_data[89].to_string(),
+                site_number: split_data.get(1).expect("No value").to_string(),
+                site_type_code: split_data.get(2).expect("No value").to_string(),
+                state_code: split_data.get(3).expect("No value").to_string(),
+                airport_id: split_data.get(4).expect("No value").to_string(),
+                city: split_data.get(5).expect("No value").to_string(),
+                country_code: split_data.get(6).expect("No value").to_string(),
+                region_code: split_data.get(7).expect("No value").to_string(),
+                ado_code: split_data.get(8).expect("No value").to_string(),
+                state_name: split_data.get(9).expect("No value").to_string(),
+                county_name: split_data.get(10).expect("No value").to_string(),
+                county_associated_state: split_data.get(11).expect("No value").to_string(),
+                airport_name: split_data.get(12).expect("No value").to_string(),
+                ownership_type_code: split_data.get(13).expect("No value").to_string(),
+                facility_use_code: split_data.get(14).expect("No value").to_string(),
+                latitude_degree: split_data.get(15).expect("No value").to_string(),
+                latitude_minutes: split_data.get(16).expect("No value").to_string(),
+                latitude_seconds: split_data.get(17).expect("No value").to_string(),
+                latitude_hemisphere: split_data.get(18).expect("No value").to_string(),
+                latitude_decimal: split_data.get(19).expect("No value").to_string(),
+                longitude_degree: split_data.get(20).expect("No value").to_string(),
+                longitude_minutes: split_data.get(21).expect("No value").to_string(),
+                longitude_seconds: split_data.get(22).expect("No value").to_string(),
+                longitude_hemisphere: split_data.get(23).expect("No value").to_string(),
+                longitude_decimal: split_data.get(24).expect("No value").to_string(),
+                survey_method_code: split_data.get(25).expect("No value").to_string(),
+                elevation: split_data.get(26).expect("No value").to_string(),
+                elevation_method_code: split_data.get(27).expect("No value").to_string(),
+                magnetic_variation: split_data.get(28).expect("No value").to_string(),
+                magnetic_hemisphere: split_data.get(29).expect("No value").to_string(),
+                magnetic_variation_year: split_data.get(30).expect("No value").to_string(),
+                tpa: split_data.get(31).expect("No value").to_string(),
+                chart_name: split_data.get(32).expect("No value").to_string(),
+                distance_city_to_airport: split_data.get(33).expect("No value").to_string(),
+                direction_code: split_data.get(34).expect("No value").to_string(),
+                acreage: split_data.get(35).expect("No value").to_string(),
+                resp_artcc_id: split_data.get(36).expect("No value").to_string(),
+                computer_id: split_data.get(37).expect("No value").to_string(),
+                artcc_name: split_data.get(38).expect("No value").to_string(),
+                fss_on_airport_flag: split_data.get(39).expect("No value").to_string(),
+                fss_id: split_data.get(40).expect("No value").to_string(),
+                fss_name: split_data.get(41).expect("No value").to_string(),
+                phone_number: split_data.get(42).expect("No value").to_string(),
+                toll_free_number: split_data.get(43).expect("No value").to_string(),
+                alt_fss_id: split_data.get(44).expect("No value").to_string(),
+                alt_fss_name: split_data.get(45).expect("No value").to_string(),
+                alt_toll_free_number: split_data.get(46).expect("No value").to_string(),
+                notam_id: split_data.get(47).expect("No value").to_string(),
+                notam_flag: split_data.get(48).expect("No value").to_string(),
+                activation_date: split_data.get(49).expect("No value").to_string(),
+                airport_status: split_data.get(50).expect("No value").to_string(),
+                far_139_type_code: split_data.get(51).expect("No value").to_string(),
+                far_139_carrier_ser_code: split_data.get(52).expect("No value").to_string(),
+                arff_cert_type_date: split_data.get(53).expect("No value").to_string(),
+                nasp_code: split_data.get(54).expect("No value").to_string(),
+                asp_analysis_dtrm_code: split_data.get(55).expect("No value").to_string(),
+                custom_flag: split_data.get(56).expect("No value").to_string(),
+                landing_flights_flag: split_data.get(57).expect("No value").to_string(),
+                joint_use_flag: split_data.get(58).expect("No value").to_string(),
+                military_landing_flag: split_data.get(59).expect("No value").to_string(),
+                inspect_method_code: split_data.get(60).expect("No value").to_string(),
+                inspector_code: split_data.get(61).expect("No value").to_string(),
+                last_inspection: split_data.get(62).expect("No value").to_string(),
+                last_information_response: split_data.get(63).expect("No value").to_string(),
+                fuel_types: split_data.get(64).expect("No value").to_string(),
+                airframe_repair_service_code: split_data.get(65).expect("No value").to_string(),
+                powerplant_repair_service: split_data.get(66).expect("No value").to_string(),
+                bottled_oxygen_type: split_data.get(67).expect("No value").to_string(),
+                bulk_oxygen_type: split_data.get(68).expect("No value").to_string(),
+                lighting_schedule: split_data.get(69).expect("No value").to_string(),
+                beacon_light_schedule: split_data.get(70).expect("No value").to_string(),
+                tower_type_code: split_data.get(71).expect("No value").to_string(),
+                segment_circle_marker_flag: split_data.get(72).expect("No value").to_string(),
+                beacon_lens_color: split_data.get(73).expect("No value").to_string(),
+                landing_fee_flag: split_data.get(74).expect("No value").to_string(),
+                medical_use_flag: split_data.get(75).expect("No value").to_string(),
+                airport_position_source: split_data.get(76).expect("No value").to_string(),
+                airport_position_source_date: split_data.get(77).expect("No value").to_string(),
+                airport_elevation_source: split_data.get(78).expect("No value").to_string(),
+                airport_elevation_source_date: split_data.get(79).expect("No value").to_string(),
+                contr_fuel_available: split_data.get(80).expect("No value").to_string(),
+                trns_strg_buoy_flag: split_data.get(81).expect("No value").to_string(),
+                trns_strg_hgr_flag: split_data.get(82).expect("No value").to_string(),
+                trns_strg_tie_flag: split_data.get(83).expect("No value").to_string(),
+                other_services: split_data.get(84).expect("No value").to_string(),
+                wind_indicator_flag: split_data.get(85).expect("No value").to_string(),
+                icao_id: split_data.get(86).expect("No value").to_string(),
+                min_op_network: split_data.get(87).expect("No value").to_string(),
+                user_fee_flag: split_data.get(88).expect("No value").to_string(),
+                cta: split_data.get(89).expect("No value").to_string(),
             };
 
             if new_airport.icao_id.clone().is_empty() {
@@ -281,25 +281,25 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
     }
 
     println!("Airports read.");
-    airport_list
+    Ok(airport_list)
 }
 
-pub fn generate_airport_changes() {
+pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
     print!("Enter cycle (e.g. 2510): ");
-    io::Write::flush(&mut io::stdout()).unwrap();
+    io::Write::flush(&mut io::stdout())?;
     let mut cycle = String::new();
-    io::stdin().read_line(&mut cycle).unwrap();
+    io::stdin().read_line(&mut cycle)?;
     let cycle = cycle.trim().to_string();
 
     print!("Enter effective date (e.g. 2025-10-09): ");
-    io::Write::flush(&mut io::stdout()).unwrap();
+    io::Write::flush(&mut io::stdout())?;
     let mut effective_date = String::new();
-    io::stdin().read_line(&mut effective_date).unwrap();
+    io::stdin().read_line(&mut effective_date)?;
     let effective_date = effective_date.trim().to_string();
-    let discord_timestamp = discord_timestamp(&effective_date).unwrap().to_string();
+    let discord_timestamp = discord_timestamp(&effective_date)?;
 
-    let current_airports: Vec<Airport> = airport::read_airports(false);
-    let future_airports: Vec<Airport> = airport::read_airports(true);
+    let current_airports: Vec<Airport> = airport::read_airports(false)?;
+    let future_airports: Vec<Airport> = airport::read_airports(true)?;
     let mut opened_airports: Vec<ModifiedAirport> = Vec::new();
     let mut closed_airports: Vec<ModifiedAirport> = Vec::new();
     let mut renamed_airports: Vec<ModifiedAirport> = Vec::new();
@@ -342,7 +342,7 @@ pub fn generate_airport_changes() {
 
         if airport_exists_in_new_data {
             let future_airport: Option<&Airport> = future_airports.iter().find(|x| x.airport_id == current_airport_loop.airport_id);
-            let name_change: bool = current_airport_loop.airport_name != future_airport.unwrap().airport_name;
+            let name_change: bool = current_airport_loop.airport_name != future_airport.expect("New airport name not defined").airport_name;
 
             if name_change {
                 let modified_airport: ModifiedAirport = ModifiedAirport {
@@ -358,7 +358,7 @@ pub fn generate_airport_changes() {
     println!("Renamed airports listed");
 
     // Outputting list
-    let path = format!("data/output/airport/{}.txt", &cycle);
+    let path = format!("data/output/airport/{cycle}.txt");
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
 
     let mut changes = AirportChanges {
@@ -370,12 +370,12 @@ pub fn generate_airport_changes() {
     };
 
     if let Ok(mut file) = File::create(&path) {
-        writeln!(file, "# **Airport changes effective {} // CYCLE {} **", discord_timestamp, changes.cycle).unwrap();
+        writeln!(file, "# **Airport changes effective {} // CYCLE {} **", discord_timestamp, changes.cycle)?;
 
         for modified_airport in opened_airports {
-            if states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
-                let a = modified_airport.new_airport.as_ref().unwrap();
-                writeln!(file, "{} - {} // OPENED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code).unwrap();
+            if states.contains(&modified_airport.new_airport.as_ref().expect("State not defined").state_name.as_str()) {
+                let a = modified_airport.new_airport.as_ref().expect("Airport not defined");
+                writeln!(file, "{} - {} // OPENED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code)?;
                 changes.opened.push(AirportEntry {
                     airport_id: a.airport_id.clone(),
                     airport_name: a.airport_name.clone(),
@@ -386,12 +386,12 @@ pub fn generate_airport_changes() {
             }
         }
 
-        writeln!(file, " ").unwrap();
+        writeln!(file, " ")?;
 
         for modified_airport in closed_airports {
-            if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
-                let a = modified_airport.current_airport.as_ref().unwrap();
-                writeln!(file, "{} - {} // CLOSED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code).unwrap();
+            if states.contains(&modified_airport.current_airport.as_ref().expect("State not defined").state_name.as_str()) {
+                let a = modified_airport.current_airport.as_ref().expect("Airport not defined");
+                writeln!(file, "{} - {} // CLOSED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code)?;
                 changes.closed.push(AirportEntry {
                     airport_id: a.airport_id.clone(),
                     airport_name: a.airport_name.clone(),
@@ -402,13 +402,13 @@ pub fn generate_airport_changes() {
             }
         }
 
-        writeln!(file, " ").unwrap();
+        writeln!(file, " ")?;
 
         for modified_airport in renamed_airports {
-            if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
-                let cur = modified_airport.current_airport.as_ref().unwrap();
-                let new = modified_airport.new_airport.as_ref().unwrap();
-                writeln!(file, "{} - {} // RENAMED {} ({}, {})", cur.airport_id, cur.airport_name, new.airport_name, cur.city, cur.state_code).unwrap();
+            if states.contains(&modified_airport.current_airport.as_ref().expect("State not defined").state_name.as_str()) {
+                let cur = modified_airport.current_airport.as_ref().expect("Current Airport not defined");
+                let new = modified_airport.new_airport.as_ref().expect("New Airport not defined");
+                writeln!(file, "{} - {} // RENAMED {} ({}, {})", cur.airport_id, cur.airport_name, new.airport_name, cur.city, cur.state_code)?;
                 changes.renamed.push(RenamedEntry {
                     airport_id: cur.airport_id.clone(),
                     old_name: cur.airport_name.clone(),
@@ -421,41 +421,38 @@ pub fn generate_airport_changes() {
         }
     }
 
-    println!("File outputted at {}", &path);
+    println!("File outputted at {path}");
 
     let json_path = format!("data/output/airport/{}.json", changes.cycle);
-    let json_data = serde_json::to_string_pretty(&changes).unwrap();
-    fs::write(&json_path, json_data).unwrap();
-    println!("JSON file outputted at {}", &json_path);
+    let json_data = serde_json::to_string_pretty(&changes)?;
+    fs::write(&json_path, json_data)?;
+    println!("JSON file outputted at {json_path}");
 
     thread::sleep(ONE_SECOND);
+
+    Ok(())
 }
 
-pub fn export_airport_list() {
-    let airports: Vec<Airport> = read_airports(false);
+pub fn export_airport_list() -> Result<(), Box<dyn std::error::Error>> {
+    let airports: Vec<Airport> = read_airports(false)?;
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
     let path = "data/output/airports.csv";
-    let mut i = 0;
+    let i: i32 = 0;
 
     if let Ok(mut file) = File::create(path) {
         // writeln!(file, "id,AirportCode,AirportName,Class,AfdLink,CTAF,Atis,AtisPhone,Tower,Ground,Clearance,Elevation,TPA,noK,Ownership,Use,Latitude,Longitude,PEInactive,ARTCC,County,City,StateCode,StateName,created_at,updated_at").unwrap();
 
         for airport in airports {
             if states.contains(&&*airport.state_name) {
-                writeln!(file, "{},{},{},tbc,tbc,tbc,tbc,tbc,tbc,tbc,tbc,{},{},tbc,{},{},{},{},false,{},{},{},{},{},,{}", i, airport.airport_id, airport.airport_name, airport.elevation, airport.tpa, airport.ownership_type_code, airport.facility_use_code, airport.latitude_decimal, airport.longitude_decimal, airport.artcc_name, airport.county_name, airport.city, airport.state_code, airport.state_name, airport.icao_id).unwrap();
-                i += 1;
+                writeln!(file, "{},{},{},tbc,tbc,tbc,tbc,tbc,tbc,tbc,tbc,{},{},tbc,{},{},{},{},false,{},{},{},{},{},,{}", i, airport.airport_id, airport.airport_name, airport.elevation, airport.tpa, airport.ownership_type_code, airport.facility_use_code, airport.latitude_decimal, airport.longitude_decimal, airport.artcc_name, airport.county_name, airport.city, airport.state_code, airport.state_name, airport.icao_id)?;
+                i.checked_add(1).expect("Airport counter overflowed");
             }
         }
     }
 
     println!("Airports exported.");
     thread::sleep(ONE_SECOND);
+
+    Ok(())
 }
 
-fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError> {
-    let date = NaiveDate::parse_from_str(effective_date, "%Y-%m-%d")?;
-    let datetime = date.and_hms_opt(9, 0, 0).expect("valid time");
-    let utc_datetime = Utc.from_utc_datetime(&datetime);
-
-    Ok(format!("<t:{}:R>", utc_datetime.timestamp()))
-}
