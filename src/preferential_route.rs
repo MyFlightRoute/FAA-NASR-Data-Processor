@@ -155,8 +155,8 @@ fn read_tec_routes(future_data: bool) -> Result<Vec<PreferentialRoute>, Box<dyn 
 
                 if new_tec_route.region == "NorCal" {
                     let split_description: Vec<&str> = new_tec_route.special_area_description.split(" TO ").collect();
-                    let split_departures: Vec<&str> = split_description[0].split(' ').collect();
-                    let split_arrivals: Vec<&str> = split_description[1].split(' ').collect();
+                    let split_departures: Vec<&str> = split_description.get(0).expect("Departures not defined").split(' ').collect();
+                    let split_arrivals: Vec<&str> = split_description.get(1).expect("Arrivals not defined").split(' ').collect();
                     let base_route: PreferentialRoute = new_tec_route.clone();
 
                     for departure in split_departures.clone() {
