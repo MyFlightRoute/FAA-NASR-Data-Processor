@@ -1,7 +1,6 @@
 use std::fs::{self, File};
 use std::path::Path;
 use std::{io::{self, BufRead, Write}, thread};
-use std::error::Error;
 use chrono::{NaiveDate, TimeZone, Utc};
 use serde::Serialize;
 use crate::{ONE_SECOND};
@@ -70,7 +69,7 @@ struct ModifiedRoute {
     route_change: Option<bool>
 }
 
-fn read_tec_routes(future_data: bool) -> Result<Vec<PreferentialRoute>, Box<dyn Error>> {
+fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
     let path = if future_data {
         ROUTE_FUTURE_DATA_LOCATION
     } else {
@@ -213,7 +212,7 @@ fn read_tec_routes(future_data: bool) -> Result<Vec<PreferentialRoute>, Box<dyn 
     }
 
     println!("TEC Routes read.");
-    Ok(route_list)
+    route_list
 }
 
 pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
@@ -395,7 +394,7 @@ fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError>
     Ok(format!("<t:{}:R>", utc_datetime.timestamp()))
 }
 
-pub fn generate_mfr_tec_route_list() {
+pub fn generate_mfr_tec_route_list() -> Result<(), Box<dyn std::error::Error>> {
     let tec_routes: Vec<PreferentialRoute> = read_tec_routes(false);
     let path: &str = "data/output/tec_routes.csv";
 
@@ -408,4 +407,6 @@ pub fn generate_mfr_tec_route_list() {
     } else {
         println!("Failed to create file.");
     }
+
+    Ok(())
 }
