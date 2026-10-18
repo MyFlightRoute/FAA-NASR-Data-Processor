@@ -321,7 +321,7 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
         writeln!(file, "# **TEC Route changes effective {} // CYCLE {}**", discord_ts, changes.cycle)?;
 
         for new_route in new_routes {
-            let r = new_route.future_route.as_ref().unwrap();
+            let r = new_route.future_route.as_ref().expect("Route not defined");
             writeln!(file, "{} ({} -> {}) // ADDED", r.designator, r.origin_id, r.destination_id)?;
             changes.added.push(RouteEntry {
                 designator: r.designator.clone(),
@@ -333,7 +333,7 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
         writeln!(file, " ")?;
 
         for removed_route in removed_routes {
-            let r = removed_route.current_route.as_ref().unwrap();
+            let r = removed_route.current_route.as_ref().expect("Route not defined");
             writeln!(file, "{} ({} -> {}) // REMOVED", r.designator, r.origin_id, r.destination_id)?;
             changes.removed.push(RouteEntry {
                 designator: r.designator.clone(),
@@ -344,9 +344,9 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut seen_designators: Vec<String> = Vec::new();
         for modified_route in modified_routes.iter().cloned() {
-            let r = modified_route.future_route.as_ref().unwrap();
-            let altitude_change = modified_route.altitude_change.unwrap();
-            let route_change = modified_route.route_change.unwrap();
+            let r = modified_route.future_route.as_ref().expect("Route not defined");
+            let altitude_change = modified_route.altitude_change.unwrap_or(false);
+            let route_change = modified_route.route_change.unwrap_or(false);
 
             if altitude_change {
                 writeln!(file, "{} ({} -> {}) // ALTITUDE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.altitude_description)?;
