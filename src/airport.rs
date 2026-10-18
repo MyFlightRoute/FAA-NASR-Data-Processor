@@ -343,7 +343,7 @@ pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
 
         if airport_exists_in_new_data {
             let future_airport: Option<&Airport> = future_airports.iter().find(|x| x.airport_id == current_airport_loop.airport_id);
-            let name_change: bool = current_airport_loop.airport_name != future_airport.unwrap().airport_name;
+            let name_change: bool = current_airport_loop.airport_name != future_airport.expect("New airport name not defined").airport_name;
 
             if name_change {
                 let modified_airport: ModifiedAirport = ModifiedAirport {
@@ -374,8 +374,8 @@ pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
         writeln!(file, "# **Airport changes effective {} // CYCLE {} **", discord_timestamp, changes.cycle)?;
 
         for modified_airport in opened_airports {
-            if states.contains(&modified_airport.new_airport.as_ref().unwrap().state_name.as_str()) {
-                let a = modified_airport.new_airport.as_ref().unwrap();
+            if states.contains(&modified_airport.new_airport.as_ref().expect("State not defined").state_name.as_str()) {
+                let a = modified_airport.new_airport.as_ref().expect("Airport not defined");
                 writeln!(file, "{} - {} // OPENED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code)?;
                 changes.opened.push(AirportEntry {
                     airport_id: a.airport_id.clone(),
@@ -390,8 +390,8 @@ pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
         writeln!(file, " ")?;
 
         for modified_airport in closed_airports {
-            if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
-                let a = modified_airport.current_airport.as_ref().unwrap();
+            if states.contains(&modified_airport.current_airport.as_ref().expect("State not defined").state_name.as_str()) {
+                let a = modified_airport.current_airport.as_ref().expect("Airport not defined");
                 writeln!(file, "{} - {} // CLOSED ({}, {})", a.airport_id, a.airport_name, a.city, a.state_code)?;
                 changes.closed.push(AirportEntry {
                     airport_id: a.airport_id.clone(),
@@ -403,13 +403,13 @@ pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        writeln!(file, " ").unwrap();
+        writeln!(file, " ")?;
 
         for modified_airport in renamed_airports {
-            if states.contains(&modified_airport.current_airport.as_ref().unwrap().state_name.as_str()) {
-                let cur = modified_airport.current_airport.as_ref().unwrap();
-                let new = modified_airport.new_airport.as_ref().unwrap();
-                writeln!(file, "{} - {} // RENAMED {} ({}, {})", cur.airport_id, cur.airport_name, new.airport_name, cur.city, cur.state_code).unwrap();
+            if states.contains(&modified_airport.current_airport.as_ref().expect("State not defined").state_name.as_str()) {
+                let cur = modified_airport.current_airport.as_ref().expect("Current Airport not defined");
+                let new = modified_airport.new_airport.as_ref().expect("New Airport not defined");
+                writeln!(file, "{} - {} // RENAMED {} ({}, {})", cur.airport_id, cur.airport_name, new.airport_name, cur.city, cur.state_code)?;
                 changes.renamed.push(RenamedEntry {
                     airport_id: cur.airport_id.clone(),
                     old_name: cur.airport_name.clone(),
@@ -425,8 +425,8 @@ pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
     println!("File outputted at {path}");
 
     let json_path = format!("data/output/airport/{}.json", changes.cycle);
-    let json_data = serde_json::to_string_pretty(&changes).unwrap();
-    fs::write(&json_path, json_data).unwrap();
+    let json_data = serde_json::to_string_pretty(&changes)?;
+    fs::write(&json_path, json_data)?;
     println!("JSON file outputted at {json_path}");
 
     thread::sleep(ONE_SECOND);
