@@ -12,10 +12,6 @@ fn main() {
     fs::create_dir_all("./data/output/pfr").expect("Failed to create data folder");
     fs::create_dir_all("./data/output/airport").expect("Failed to create output folder");
 
-    main_menu();
-}
-
-fn main_menu() {
     let mut menu = MenuBuilder::new()
         .with_menu(1)
         .with_menu_item("Export airport list", MenuAction::Nothing)
@@ -45,6 +41,6 @@ fn main_menu() {
                     _ => (),
                 }
             }
-        } 
+        }
     }
 }
