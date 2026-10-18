@@ -318,11 +318,11 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     if let Ok(mut file) = File::create(&path) {
-        writeln!(file, "# **TEC Route changes effective {} // CYCLE {}**", discord_ts, changes.cycle).unwrap();
+        writeln!(file, "# **TEC Route changes effective {} // CYCLE {}**", discord_ts, changes.cycle)?;
 
         for new_route in new_routes {
             let r = new_route.future_route.as_ref().unwrap();
-            writeln!(file, "{} ({} -> {}) // ADDED", r.designator, r.origin_id, r.destination_id).unwrap();
+            writeln!(file, "{} ({} -> {}) // ADDED", r.designator, r.origin_id, r.destination_id)?;
             changes.added.push(RouteEntry {
                 designator: r.designator.clone(),
                 origin_id: r.origin_id.clone(),
@@ -330,11 +330,11 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
             });
         }
 
-        writeln!(file, " ").unwrap();
+        writeln!(file, " ")?;
 
         for removed_route in removed_routes {
             let r = removed_route.current_route.as_ref().unwrap();
-            writeln!(file, "{} ({} -> {}) // REMOVED", r.designator, r.origin_id, r.destination_id).unwrap();
+            writeln!(file, "{} ({} -> {}) // REMOVED", r.designator, r.origin_id, r.destination_id)?;
             changes.removed.push(RouteEntry {
                 designator: r.designator.clone(),
                 origin_id: r.origin_id.clone(),
@@ -349,10 +349,10 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
             let route_change = modified_route.route_change.unwrap();
 
             if altitude_change {
-                writeln!(file, "{} ({} -> {}) // ALTITUDE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.altitude_description).unwrap();
+                writeln!(file, "{} ({} -> {}) // ALTITUDE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.altitude_description)?;
             }
             if route_change {
-                writeln!(file, "{} ({} -> {}) // ROUTE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.route_string).unwrap();
+                writeln!(file, "{} ({} -> {}) // ROUTE CHANGED `{}`", r.designator, r.origin_id, r.destination_id, r.route_string)?;
             }
 
             if !seen_designators.contains(&r.designator) {
@@ -370,7 +370,7 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         if !routes_have_changed {
-            writeln!(file, "** NO ROUTE CHANGES **").unwrap();
+            writeln!(file, "** NO ROUTE CHANGES **")?;
         }
     }
 
