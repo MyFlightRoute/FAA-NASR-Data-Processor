@@ -8,6 +8,7 @@ use crate::{airport, ONE_SECOND};
 const AIRPORT_DATA_LOCATION: &str = "data/APT_BASE.csv";
 const PREVIEW_AIRPORT_DATA_LOCATION: &str = "data/APT_BASE_NEW.csv";
 
+#[expect(clippy::struct_field_names, reason = "fields mirror FAA CSV columns")]
 #[derive(PartialEq, Clone)]
 pub struct Airport {
     site_number: String,
