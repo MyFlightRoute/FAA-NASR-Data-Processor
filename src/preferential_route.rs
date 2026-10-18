@@ -400,7 +400,7 @@ pub fn generate_mfr_tec_route_list() {
         // writeln!(file, "id,route_designator,origin_id,destination_id,altitude,aircraft,route_string,route_notes,created_at,updated_at").unwrap();
 
         for tec_route in tec_routes {
-            writeln!(file, ",{},{},{},{},{},{},{},{},,", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::new()), tec_route.region).unwrap();
+            writeln!(file, ",{},{},{},{},{},{},{},{},,", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::new()), tec_route.region).expect("Unable to write TEC Route line");
         }
     } else {
         println!("Failed to create file.");
