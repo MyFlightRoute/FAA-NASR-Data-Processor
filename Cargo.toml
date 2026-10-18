@@ -30,3 +30,4 @@ exit = "deny"
 as_conversions = "deny"
 # ALLOW PANICS
 missing_errors_doc = "allow"
+missing_panics_doc = "allow"
