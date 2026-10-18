@@ -70,10 +70,10 @@ struct ModifiedRoute {
 }
 
 fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
-    let path = if !future_data {
-        ROUTE_DATA_LOCATION
-    } else {
+    let path = if future_data {
         ROUTE_FUTURE_DATA_LOCATION
+    } else {
+        ROUTE_DATA_LOCATION
     };
 
     let mut route_list: Vec<PreferentialRoute> = Vec::new();
@@ -400,7 +400,7 @@ pub fn generate_mfr_tec_route_list() {
         // writeln!(file, "id,route_designator,origin_id,destination_id,altitude,aircraft,route_string,route_notes,created_at,updated_at").unwrap();
 
         for tec_route in tec_routes {
-            writeln!(file, ",{},{},{},{},{},{},{},{},,", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::from("")), tec_route.region).unwrap();
+            writeln!(file, ",{},{},{},{},{},{},{},{},,", tec_route.designator, tec_route.origin_id, tec_route.destination_id, tec_route.altitude_description, tec_route.aircraft, tec_route.route_string, tec_route.route_notes.unwrap_or(String::new()), tec_route.region).unwrap();
         }
     } else {
         println!("Failed to create file.");
