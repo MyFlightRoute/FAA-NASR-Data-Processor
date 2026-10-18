@@ -135,7 +135,7 @@ struct AirportChanges {
     renamed: Vec<RenamedEntry>,
 }
 
-pub fn read_airports(future_data: bool) -> Vec<Airport> {
+pub fn read_airports(future_data: bool) -> Result<Vec<Airport>, Box<dyn std::error::Error>> {
     let path = if future_data {
         PREVIEW_AIRPORT_DATA_LOCATION
     } else {
@@ -149,13 +149,13 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
 
         thread::sleep(ONE_SECOND);
 
-        return airport_list;
+        return Err("APT Base missing".into())
     } else if future_data && !Path::new(PREVIEW_AIRPORT_DATA_LOCATION).exists() {
         println!("Please download the upcoming changes and put it in the data folder as APT_BASE_NEW.csv, and restart the function.");
 
         thread::sleep(ONE_SECOND);
 
-        return airport_list;
+        return Err("New APT Base missing".into())
     }
 
     // Attempt to open the file
@@ -168,7 +168,7 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
     for line in reader.lines() {
         // Check if reading the line was successful
 
-        let clean_line = line.unwrap().replace('"', "");
+        let clean_line = line?.replace('"', "");
 
         // Split the line by commas and collect the values into a vector
         let split_data: Vec<&str> = clean_line.split(',').collect();
@@ -282,7 +282,7 @@ pub fn read_airports(future_data: bool) -> Vec<Airport> {
     }
 
     println!("Airports read.");
-    airport_list
+    Ok(airport_list)
 }
 
 pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
@@ -299,8 +299,8 @@ pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
     let effective_date = effective_date.trim().to_string();
     let discord_timestamp = discord_timestamp(&effective_date)?.to_string();
 
-    let current_airports: Vec<Airport> = airport::read_airports(false);
-    let future_airports: Vec<Airport> = airport::read_airports(true);
+    let current_airports: Vec<Airport> = airport::read_airports(false)?;
+    let future_airports: Vec<Airport> = airport::read_airports(true)?;
     let mut opened_airports: Vec<ModifiedAirport> = Vec::new();
     let mut closed_airports: Vec<ModifiedAirport> = Vec::new();
     let mut renamed_airports: Vec<ModifiedAirport> = Vec::new();
@@ -435,7 +435,7 @@ pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 pub fn export_airport_list() -> Result<(), Box<dyn std::error::Error>> {
-    let airports: Vec<Airport> = read_airports(false);
+    let airports: Vec<Airport> = read_airports(false)?;
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
     let path = "data/output/airports.csv";
     let i: i32 = 0;
