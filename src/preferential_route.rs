@@ -285,10 +285,10 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
                     x.destination_id == current_route_loop.destination_id
             );
 
-            let altitude_change: bool = current_route_loop.altitude_description != new_route.as_ref().unwrap().altitude_description;
-            let route_change: bool = current_route_loop.route_string != new_route.as_ref().unwrap().route_string;
-            let route_number_matches: bool = current_route_loop.route_number == new_route.as_ref().unwrap().route_number;
-            let route_description_matches: bool = current_route_loop.special_area_description == new_route.as_ref().unwrap().special_area_description;
+            let altitude_change: bool = current_route_loop.altitude_description != new_route.as_ref().expect("Altitude not defined in new route").altitude_description;
+            let route_change: bool = current_route_loop.route_string != new_route.as_ref().expect("Route string not defined in new route").route_string;
+            let route_number_matches: bool = current_route_loop.route_number == new_route.as_ref().expect("Route number not defined in new route").route_number;
+            let route_description_matches: bool = current_route_loop.special_area_description == new_route.as_ref().expect("Special Area Description not defined in new route").special_area_description;
 
             if (route_change || altitude_change) && route_number_matches && route_description_matches {
                 let modified_route: ModifiedRoute = ModifiedRoute {
