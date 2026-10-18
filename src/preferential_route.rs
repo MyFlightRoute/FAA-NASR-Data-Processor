@@ -145,7 +145,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
                 }
 
                 for route_id in norcal_tec_route_ids {
-                    if new_tec_route.designator[0..3] == String::from(route_id) {
+                    if new_tec_route.designator[0..3] == *route_id {
                         new_tec_route.region = String::from("NorCal");
                         break;
                     }
