@@ -1,6 +1,7 @@
 use std::fs::{self, File};
 use std::path::Path;
 use std::{io::{self, BufRead, Write}, thread};
+use std::error::Error;
 use chrono::{NaiveDate, TimeZone, Utc};
 use serde::Serialize;
 use crate::{ONE_SECOND};
@@ -69,7 +70,7 @@ struct ModifiedRoute {
     route_change: Option<bool>
 }
 
-fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
+fn read_tec_routes(future_data: bool) -> Result<Vec<PreferentialRoute>, Box<dyn Error>> {
     let path = if future_data {
         ROUTE_FUTURE_DATA_LOCATION
     } else {
@@ -212,22 +213,22 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
     }
 
     println!("TEC Routes read.");
-    route_list
+    Ok(route_list)
 }
 
-pub fn generate_tec_route_changes() {
+pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
     print!("Enter cycle (e.g. 2510): ");
-    io::Write::flush(&mut io::stdout()).unwrap();
+    io::Write::flush(&mut io::stdout())?;
     let mut cycle = String::new();
-    io::stdin().read_line(&mut cycle).unwrap();
+    io::stdin().read_line(&mut cycle)?;
     let cycle = cycle.trim().to_string();
 
     print!("Enter effective date (e.g. 2025-10-09): ");
-    io::Write::flush(&mut io::stdout()).unwrap();
+    io::Write::flush(&mut io::stdout())?;
     let mut effective_date = String::new();
-    io::stdin().read_line(&mut effective_date).unwrap();
+    io::stdin().read_line(&mut effective_date)?;
     let effective_date = effective_date.trim().to_string();
-    let discord_ts = discord_timestamp(&effective_date).unwrap().to_string();
+    let discord_ts = discord_timestamp(&effective_date)?.to_string();
 
     let current_routes: Vec<PreferentialRoute> = read_tec_routes( false);
     let future_routes: Vec<PreferentialRoute> = read_tec_routes( true);
@@ -382,6 +383,8 @@ pub fn generate_tec_route_changes() {
     println!("JSON file outputted at {json_path}");
 
     thread::sleep(ONE_SECOND);
+
+    Ok(())
 }
 
 fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError> {
