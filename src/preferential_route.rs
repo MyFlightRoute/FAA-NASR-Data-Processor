@@ -111,7 +111,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
         //println!("{:?}", split_data);
 
         // If the line is a valid TEC Route data block, create a TEC Route
-        if split_data[9] == "TEC" {
+        if split_data.get(9).expect("Unable to determine if entry is a TEC Route").to_string() == "TEC" {
             // Check the TEC Route is a Californian TEC Route
             if split_data[3] == "CA" && split_data[7] == "CA" { 
                 let mut new_tec_route = PreferentialRoute {
