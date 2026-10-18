@@ -69,7 +69,7 @@ struct ModifiedRoute {
     route_change: Option<bool>
 }
 
-fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
+fn read_tec_routes(future_data: bool) -> Result<Vec<PreferentialRoute>, Box<dyn std::error::Error>> {
     let path = if future_data {
         ROUTE_FUTURE_DATA_LOCATION
     } else {
@@ -83,13 +83,13 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
 
         thread::sleep(ONE_SECOND);
 
-        return route_list;
+        return Err("TEC Route CSV file missing".into());
     } else if future_data && !Path::new(path).exists() {
         println!("Please download the upcoming changes and put it in the data folder as APT_BASE_NEW.csv, and restart the function.");
 
         thread::sleep(ONE_SECOND);
 
-        return route_list;
+        return Err("Upcoming changes TEC Route CSV missing".into());
     }
 
     // Attempt to open the file
@@ -102,7 +102,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
     for line in reader.lines() {
         let norcal_tec_route_ids: Vec<&str> = vec!["SJC", "MOD", "SQL", "MHR", "HWD", "LVK", "MRY", "NUQ", "OAK", "SAC", "SCK", "SFO"];
         // Check if reading the line was successful
-        let clean_line = line.unwrap().replace('"', "");
+        let clean_line = line?.replace('"', "");
 
         // Split the line by commas and collect the values into a vector
         let split_data: Vec<&str> = clean_line.split(',').collect();
@@ -113,7 +113,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
         // If the line is a valid TEC Route data block, create a TEC Route
         if split_data.get(9).expect("Unable to determine if entry is a TEC Route").to_string() == "TEC" {
             // Check the TEC Route is a Californian TEC Route
-            if split_data[3] == "CA" && split_data[7] == "CA" { 
+            if split_data.get(3).expect("Unable to check if TEC route is CA").to_string() == "CA" && split_data.get(7).expect("Unable to check if TEC route is CA").to_string() == "CA" {
                 let mut new_tec_route = PreferentialRoute {
                     origin_id: split_data.get(1).expect("No value").to_string(),
                     origin_city: split_data.get(2).expect("No value").to_string(),
@@ -212,7 +212,7 @@ fn read_tec_routes(future_data: bool) -> Vec<PreferentialRoute> {
     }
 
     println!("TEC Routes read.");
-    route_list
+    Ok(route_list)
 }
 
 pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
@@ -229,8 +229,8 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
     let effective_date = effective_date.trim().to_string();
     let discord_ts = discord_timestamp(&effective_date)?.to_string();
 
-    let current_routes: Vec<PreferentialRoute> = read_tec_routes( false);
-    let future_routes: Vec<PreferentialRoute> = read_tec_routes( true);
+    let current_routes: Vec<PreferentialRoute> = read_tec_routes( false).expect("Failed to read TEC routes");
+    let future_routes: Vec<PreferentialRoute> = read_tec_routes( true).expect("Failed to read future TEC routes");
     let mut new_routes: Vec<ModifiedRoute> = Vec::new();
     let mut removed_routes: Vec<ModifiedRoute> = Vec::new();
     let mut modified_routes: Vec<ModifiedRoute> = Vec::new();
@@ -395,7 +395,7 @@ fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError>
 }
 
 pub fn generate_mfr_tec_route_list() -> Result<(), Box<dyn std::error::Error>> {
-    let tec_routes: Vec<PreferentialRoute> = read_tec_routes(false);
+    let tec_routes: Vec<PreferentialRoute> = read_tec_routes(false).expect("Failed to read TEC Routes");
     let path: &str = "data/output/tec_routes.csv";
 
     if let Ok(mut file) = File::create(path) {
