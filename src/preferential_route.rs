@@ -374,7 +374,7 @@ pub fn generate_tec_route_changes() {
         }
     }
 
-    println!("File outputted at {}", path);
+    println!("File outputted at {path}");
 
     let json_path = format!("data/output/pfr/{}.json", changes.cycle);
     let json_data = serde_json::to_string_pretty(&changes).expect("Failed to serialize changes");
