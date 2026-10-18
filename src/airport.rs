@@ -177,7 +177,7 @@ pub fn read_airports(future_data: bool) -> Result<Vec<Airport>, Box<dyn std::err
         //println!("{:?}", split_data);
 
         // If the line is a valid airport data block, create an airport
-        if split_data.get(0).expect("Unable to check if line is EFF_DATE").to_string() != "EFF_DATE" {
+        if split_data.first().expect("Unable to check if line is EFF_DATE").to_string() != "EFF_DATE" {
             let mut new_airport = Airport {
                 site_number: split_data.get(1).expect("No value").to_string(),
                 site_type_code: split_data.get(2).expect("No value").to_string(),
