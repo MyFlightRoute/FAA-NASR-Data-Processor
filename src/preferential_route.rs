@@ -91,126 +91,125 @@ fn read_tec_routes(future_data: bool) -> Result<Vec<PreferentialRoute>, Box<dyn 
         return Err("Upcoming changes TEC Route CSV missing".into());
     }
 
-    // Attempt to open the file
     let file =  File::open(path).expect("File failed to open");
 
-    // Create a buffered reader to efficiently read the file line by line
     let reader = io::BufReader::new(file);
 
-    // Iterate over each line in the file
     for line in reader.lines() {
-        let norcal_tec_route_ids: Vec<&str> = vec!["SJC", "MOD", "SQL", "MHR", "HWD", "LVK", "MRY", "NUQ", "OAK", "SAC", "SCK", "SFO"];
-        // Check if reading the line was successful
         let clean_line = line?.replace('"', "");
 
-        // Split the line by commas and collect the values into a vector
         let split_data: Vec<&str> = clean_line.split(',').collect();
 
-        // Print the vector of values for the current line
-        //println!("{:?}", split_data);
-
-        // If the line is a valid TEC Route data block, create a TEC Route
         if split_data.get(9) == Some(&"TEC") {
             // Check the TEC Route is a Californian TEC Route
             if split_data.get(3) == Some(&"CA") && split_data.get(7) == Some(&"CA") {
-                let mut new_tec_route = PreferentialRoute {
-                    origin_id: split_data.get(1).expect("No value").to_string(),
-                    origin_city: split_data.get(2).expect("No value").to_string(),
-                    origin_state_code: split_data.get(3).expect("No value").to_string(),
-                    origin_country_code: split_data.get(4).expect("No value").to_string(),
-                    destination_id: split_data.get(5).expect("No value").to_string(),
-                    destination_city: split_data.get(6).expect("No value").to_string(),
-                    destination_state_code: split_data.get(7).expect("No value").to_string(),
-                    destination_country_code: split_data.get(8).expect("No value").to_string(),
-                    pfr_type_code: split_data.get(9).expect("No value").to_string(),
-                    route_number: split_data.get(10).expect("No value").to_string(),
-                    special_area_description: split_data.get(11).expect("No value").to_string(),
-                    altitude_description: split_data.get(12).expect("No value").to_string(),
-                    aircraft: split_data.get(13).expect("No value").to_string(),
-                    hours: split_data.get(14).expect("No value").to_string(),
-                    route_dir_description: split_data.get(15).expect("No value").to_string(),
-                    designator: split_data.get(16).expect("No value").to_string(),
-                    nar_type: split_data.get(17).expect("No value").to_string(),
-                    inland_fac_fix: split_data.get(18).expect("No value").to_string(),
-                    coastal_fix: split_data.get(19).expect("No value").to_string(),
-                    destination: split_data.get(20).expect("No value").to_string(),
-                    route_string: split_data.get(21).expect("No value").to_string(),
-                    route_notes: None,
-                    region: String::from("TBC")
-                };
-
-                if new_tec_route.route_string.is_empty() {
-                    new_tec_route.route_string = String::from("DCT");
-                }
-
-                for route_id in norcal_tec_route_ids {
-                    if new_tec_route.designator.starts_with(route_id) {
-                        new_tec_route.region = String::from("NorCal");
-                        break;
-                    }
-
-                    new_tec_route.region = String::from("SoCal");
-                }
-
-                if new_tec_route.region == "NorCal" {
-                    let split_description: Vec<&str> = new_tec_route.special_area_description.split(" TO ").collect();
-                    let split_departures: Vec<&str> = split_description.first().expect("Departures not defined").split(' ').collect();
-                    let split_arrivals: Vec<&str> = split_description.get(1).expect("Arrivals not defined").split(' ').collect();
-                    let base_route: PreferentialRoute = new_tec_route.clone();
-
-                    for departure in split_departures.clone() {
-                        for arrival in split_arrivals.clone() {
-                            let new_sub_route: PreferentialRoute = PreferentialRoute {
-                                origin_id: String::from(departure),
-                                origin_city: String::new(),
-                                origin_state_code: String::new(),
-                                origin_country_code: String::new(),
-                                destination_id: String::from(arrival),
-                                destination_city: String::new(),
-                                destination_state_code: String::new(),
-                                destination_country_code: String::new(),
-                                pfr_type_code: base_route.clone().pfr_type_code,
-                                route_number: base_route.clone().route_number,
-                                special_area_description: base_route.clone().special_area_description,
-                                altitude_description: base_route.clone().altitude_description,
-                                aircraft: base_route.clone().aircraft,
-                                hours: base_route.clone().hours,
-                                route_dir_description: base_route.clone().route_dir_description,
-                                designator: base_route.clone().designator,
-                                nar_type: base_route.clone().nar_type,
-                                inland_fac_fix: base_route.clone().inland_fac_fix,
-                                coastal_fix: base_route.clone().coastal_fix,
-                                destination: base_route.clone().destination,
-                                route_string: base_route.clone().route_string,
-                                route_notes: None,
-                                region: base_route.clone().region,
-                            };
-
-                            route_list.push(new_sub_route);
-                        }
-                    }
-                }
-
-                if new_tec_route.special_area_description.contains("LAXE") {
-                    new_tec_route.route_notes = Option::from(String::from("LAX EAST"));
-                } else if new_tec_route.special_area_description.contains("LAXW") {
-                    new_tec_route.route_notes = Option::from(String::from("LAX WEST"));
-                } else if new_tec_route.special_area_description.contains("SANE") {
-                    new_tec_route.route_notes = Option::from(String::from("SAN EAST"));
-                }
-
-                if new_tec_route.route_dir_description == "SFOW" {
-                    new_tec_route.route_notes = Option::from(String::from("SFO West"));
-                } else if new_tec_route.route_dir_description == "SFOE" {
-                    new_tec_route.route_notes = Option::from(String::from("SFO East"));
-                }
-                
-                route_list.push(new_tec_route);
+                route_list.extend(process_tec_route(split_data)?);
             }
         }
     }
 
     println!("TEC Routes read.");
+    Ok(route_list)
+}
+
+fn process_tec_route(raw_data: Vec<&str>) -> Result<Vec<PreferentialRoute>, Box<dyn std::error::Error>> {
+    let norcal_tec_route_ids: Vec<&str> = vec!["SJC", "MOD", "SQL", "MHR", "HWD", "LVK", "MRY", "NUQ", "OAK", "SAC", "SCK", "SFO"];
+    let mut route_list = Vec::<PreferentialRoute>::new();
+
+    let mut new_tec_route = PreferentialRoute {
+        origin_id: raw_data.get(1).expect("No value").to_string(),
+        origin_city: raw_data.get(2).expect("No value").to_string(),
+        origin_state_code: raw_data.get(3).expect("No value").to_string(),
+        origin_country_code: raw_data.get(4).expect("No value").to_string(),
+        destination_id: raw_data.get(5).expect("No value").to_string(),
+        destination_city: raw_data.get(6).expect("No value").to_string(),
+        destination_state_code: raw_data.get(7).expect("No value").to_string(),
+        destination_country_code: raw_data.get(8).expect("No value").to_string(),
+        pfr_type_code: raw_data.get(9).expect("No value").to_string(),
+        route_number: raw_data.get(10).expect("No value").to_string(),
+        special_area_description: raw_data.get(11).expect("No value").to_string(),
+        altitude_description: raw_data.get(12).expect("No value").to_string(),
+        aircraft: raw_data.get(13).expect("No value").to_string(),
+        hours: raw_data.get(14).expect("No value").to_string(),
+        route_dir_description: raw_data.get(15).expect("No value").to_string(),
+        designator: raw_data.get(16).expect("No value").to_string(),
+        nar_type: raw_data.get(17).expect("No value").to_string(),
+        inland_fac_fix: raw_data.get(18).expect("No value").to_string(),
+        coastal_fix: raw_data.get(19).expect("No value").to_string(),
+        destination: raw_data.get(20).expect("No value").to_string(),
+        route_string: raw_data.get(21).expect("No value").to_string(),
+        route_notes: None,
+        region: String::from("TBC")
+    };
+
+    if new_tec_route.route_string.is_empty() {
+        new_tec_route.route_string = String::from("DCT");
+    }
+
+    for route_id in norcal_tec_route_ids {
+        if new_tec_route.designator.starts_with(route_id) {
+            new_tec_route.region = String::from("NorCal");
+            break;
+        }
+
+        new_tec_route.region = String::from("SoCal");
+    }
+
+    if new_tec_route.region == "NorCal" {
+        let split_description: Vec<&str> = new_tec_route.special_area_description.split(" TO ").collect();
+        let split_departures: Vec<&str> = split_description.first().expect("Departures not defined").split(' ').collect();
+        let split_arrivals: Vec<&str> = split_description.get(1).expect("Arrivals not defined").split(' ').collect();
+        let base_route: PreferentialRoute = new_tec_route.clone();
+
+        for departure in split_departures.clone() {
+            for arrival in split_arrivals.clone() {
+                let new_sub_route: PreferentialRoute = PreferentialRoute {
+                    origin_id: String::from(departure),
+                    origin_city: String::new(),
+                    origin_state_code: String::new(),
+                    origin_country_code: String::new(),
+                    destination_id: String::from(arrival),
+                    destination_city: String::new(),
+                    destination_state_code: String::new(),
+                    destination_country_code: String::new(),
+                    pfr_type_code: base_route.clone().pfr_type_code,
+                    route_number: base_route.clone().route_number,
+                    special_area_description: base_route.clone().special_area_description,
+                    altitude_description: base_route.clone().altitude_description,
+                    aircraft: base_route.clone().aircraft,
+                    hours: base_route.clone().hours,
+                    route_dir_description: base_route.clone().route_dir_description,
+                    designator: base_route.clone().designator,
+                    nar_type: base_route.clone().nar_type,
+                    inland_fac_fix: base_route.clone().inland_fac_fix,
+                    coastal_fix: base_route.clone().coastal_fix,
+                    destination: base_route.clone().destination,
+                    route_string: base_route.clone().route_string,
+                    route_notes: None,
+                    region: base_route.clone().region,
+                };
+
+                route_list.push(new_sub_route);
+            }
+        }
+    }
+
+    if new_tec_route.special_area_description.contains("LAXE") {
+        new_tec_route.route_notes = Option::from(String::from("LAX EAST"));
+    } else if new_tec_route.special_area_description.contains("LAXW") {
+        new_tec_route.route_notes = Option::from(String::from("LAX WEST"));
+    } else if new_tec_route.special_area_description.contains("SANE") {
+        new_tec_route.route_notes = Option::from(String::from("SAN EAST"));
+    }
+
+    if new_tec_route.route_dir_description == "SFOW" {
+        new_tec_route.route_notes = Option::from(String::from("SFO West"));
+    } else if new_tec_route.route_dir_description == "SFOE" {
+        new_tec_route.route_notes = Option::from(String::from("SFO East"));
+    }
+
+    route_list.push(new_tec_route);
+
     Ok(route_list)
 }
 
