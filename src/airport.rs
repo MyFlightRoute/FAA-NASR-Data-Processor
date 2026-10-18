@@ -135,10 +135,10 @@ struct AirportChanges {
 }
 
 pub fn read_airports(future_data: bool) -> Vec<Airport> {
-    let path = if !future_data {
-        AIRPORT_DATA_LOCATION
-    } else {
+    let path = if future_data {
         PREVIEW_AIRPORT_DATA_LOCATION
+    } else {
+        AIRPORT_DATA_LOCATION
     };
 
     let mut airport_list: Vec<Airport> = Vec::new();
