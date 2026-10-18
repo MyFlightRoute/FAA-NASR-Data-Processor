@@ -379,7 +379,7 @@ pub fn generate_tec_route_changes() {
     let json_path = format!("data/output/pfr/{}.json", changes.cycle);
     let json_data = serde_json::to_string_pretty(&changes).unwrap();
     fs::write(&json_path, json_data).unwrap();
-    println!("JSON file outputted at {}", &json_path);
+    println!("JSON file outputted at {}", json_path);
 
     thread::sleep(ONE_SECOND);
 }
