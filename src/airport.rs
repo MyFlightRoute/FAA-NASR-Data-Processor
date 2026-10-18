@@ -435,7 +435,7 @@ pub fn export_airport_list() {
     let airports: Vec<Airport> = read_airports(false);
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
     let path = "data/output/airports.csv";
-    let mut i = 0;
+    let i: i32 = 0;
 
     if let Ok(mut file) = File::create(path) {
         // writeln!(file, "id,AirportCode,AirportName,Class,AfdLink,CTAF,Atis,AtisPhone,Tower,Ground,Clearance,Elevation,TPA,noK,Ownership,Use,Latitude,Longitude,PEInactive,ARTCC,County,City,StateCode,StateName,created_at,updated_at").unwrap();
@@ -443,7 +443,7 @@ pub fn export_airport_list() {
         for airport in airports {
             if states.contains(&&*airport.state_name) {
                 writeln!(file, "{},{},{},tbc,tbc,tbc,tbc,tbc,tbc,tbc,tbc,{},{},tbc,{},{},{},{},false,{},{},{},{},{},,{}", i, airport.airport_id, airport.airport_name, airport.elevation, airport.tpa, airport.ownership_type_code, airport.facility_use_code, airport.latitude_decimal, airport.longitude_decimal, airport.artcc_name, airport.county_name, airport.city, airport.state_code, airport.state_name, airport.icao_id).unwrap();
-                i += 1;
+                i.checked_add(1).expect("Airport counter overflowed");
             }
         }
     }
