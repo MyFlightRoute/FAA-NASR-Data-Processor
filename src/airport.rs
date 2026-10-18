@@ -359,7 +359,7 @@ pub fn generate_airport_changes() -> Result<(), Box<dyn std::error::Error>> {
     println!("Renamed airports listed");
 
     // Outputting list
-    let path = format!("data/output/airport/{}.txt", &cycle);
+    let path = format!("data/output/airport/{cycle}.txt");
     let states = ["CALIFORNIA", "OREGON", "WASHINGTON", "NEVADA", "UTAH", "ARIZONA", "NEW MEXICO", "COLORADO", "WYOMING", "IDAHO", "MONTANA"];
 
     let mut changes = AirportChanges {
