@@ -1,9 +1,8 @@
 use std::fs::{self, File};
 use std::path::Path;
 use std::{io::{self, BufRead, Write}, thread};
-use chrono::{NaiveDate, TimeZone, Utc};
 use serde::Serialize;
-use crate::{ONE_SECOND};
+use crate::{ONE_SECOND, util::discord_timestamp};
 
 const ROUTE_DATA_LOCATION: &str = "data/PFR_BASE.csv";
 const ROUTE_FUTURE_DATA_LOCATION: &str = "data/PFR_BASE_NEW.csv";
@@ -384,14 +383,6 @@ pub fn generate_tec_route_changes() -> Result<(), Box<dyn std::error::Error>> {
     thread::sleep(ONE_SECOND);
 
     Ok(())
-}
-
-fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError> {
-    let date = NaiveDate::parse_from_str(effective_date, "%Y-%m-%d")?;
-    let datetime = date.and_hms_opt(9, 0, 0).expect("valid time");
-    let utc_datetime = Utc.from_utc_datetime(&datetime);
-
-    Ok(format!("<t:{}:R>", utc_datetime.timestamp()))
 }
 
 pub fn generate_mfr_tec_route_list() -> Result<(), Box<dyn std::error::Error>> {

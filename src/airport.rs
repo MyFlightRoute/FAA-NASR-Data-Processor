@@ -1,9 +1,8 @@
 use std::{path::Path, thread, io::{self, BufRead, Write}, fs};
 use std::fs::File;
 use serde::Serialize;
-use chrono::{NaiveDate, TimeZone, Utc};
 
-use crate::{airport, ONE_SECOND};
+use crate::{airport, ONE_SECOND, util::discord_timestamp};
 
 const AIRPORT_DATA_LOCATION: &str = "data/APT_BASE.csv";
 const PREVIEW_AIRPORT_DATA_LOCATION: &str = "data/APT_BASE_NEW.csv";
@@ -457,10 +456,3 @@ pub fn export_airport_list() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn discord_timestamp(effective_date: &str) -> Result<String, chrono::ParseError> {
-    let date = NaiveDate::parse_from_str(effective_date, "%Y-%m-%d")?;
-    let datetime = date.and_hms_opt(9, 0, 0).expect("valid time");
-    let utc_datetime = Utc.from_utc_datetime(&datetime);
-
-    Ok(format!("<t:{}:R>", utc_datetime.timestamp()))
-}
